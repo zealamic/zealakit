@@ -1,0 +1,12 @@
+**/node_modules
+/dist
+*.log
+.DS_Store
+*.tgz
+README_TEMP.md
+
+/templates/**/package-lock.json
+/templates/**/yarn.lock
+/templates/**/pnpm-lock.yaml
+/templates/**/pnpm-workspace.yaml
+/templates/**/bun.lockb

@@ -1,0 +1,7 @@
+packages:
+  - .
+  - templates/*
+
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
