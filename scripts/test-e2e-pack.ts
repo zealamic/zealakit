@@ -134,14 +134,14 @@ function verifyTarballContents(tarballPath: string): void {
 }
 
 async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult> {
-  const name = "Test 1: client pass (biome + zustand + hookform-zod)";
+  const name = "Test 1: client pass (biome + zustand + hookform-zod + kyjs)";
   const errors: string[] = [];
   const appName = "test-client";
   const appDir = path.join(E2E_WORK_DIR, appName);
 
   const result = await runNpxTarball(
     tarballPath,
-    [appName, "-t", "vite-react", "-w", "biome,zustand,hookform-zod", "-y"],
+    [appName, "-t", "vite-react", "-w", "biome,zustand,hookform-zod,kyjs", "-y"],
     E2E_WORK_DIR,
   );
 
@@ -160,6 +160,11 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
   assert(
     pathExists(path.join(appDir, "src/lib/schemas/example.schema.ts")),
     "example.schema.ts should exist",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/lib/fetcher/index.ts")),
+    "kyjs recipe should copy src/lib/fetcher/index.ts",
     errors,
   );
   assert(pathExists(path.join(appDir, "biome.json")), "biome.json should exist", errors);
@@ -193,7 +198,14 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
     assert("zustand" in deps, "package.json should include zustand", errors);
     assert("react-hook-form" in deps, "package.json should include react-hook-form", errors);
     assert("zod" in deps, "package.json should include zod", errors);
-    assert("@hookform/resolvers" in deps, "package.json should include @hookform/resolvers", errors);
+    assert(
+      "@hookform/resolvers" in deps,
+      "package.json should include @hookform/resolvers",
+      errors,
+    );
+    assert("ky" in deps, "package.json should include ky", errors);
+    assert(deps.ky === "^2.1.0", `ky version should be ^2.1.0, got ${deps.ky}`, errors);
+    assert(!("axios" in deps), "package.json should NOT include axios", errors);
     assert("@biomejs/biome" in devDeps, "package.json should include @biomejs/biome", errors);
     assert(!("antd" in deps), "package.json should NOT include antd", errors);
     assert(!("vitest" in devDeps), "package.json should NOT include vitest", errors);
@@ -253,6 +265,11 @@ async function testCase3EslintStandalone(tarballPath: string): Promise<TestCaseR
     "default client-utils recipe should copy api.ts",
     errors,
   );
+  assert(
+    !pathExists(path.join(appDir, "src/lib/fetcher/index.ts")),
+    "fetcher should NOT exist when no fetcher recipe is selected",
+    errors,
+  );
 
   if (pathExists(path.join(appDir, "package.json"))) {
     const pkg = readPackageJson(appDir);
@@ -283,6 +300,60 @@ async function testCase4StateConflict(tarballPath: string): Promise<TestCaseResu
   );
   assert(/conflict/i.test(result.output), "Output should mention conflict", errors);
   assert(/state/i.test(result.output), "Output should mention state group", errors);
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase5AxiosPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 5: axios fetcher pass";
+  const errors: string[] = [];
+  const appName = "test-axios";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "vite-react", "-w", "axios", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/lib/fetcher/index.ts")),
+    "axios recipe should copy src/lib/fetcher/index.ts",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    assert("axios" in deps, "package.json should include axios", errors);
+    assert(deps.axios === "^1.20.0", `axios version should be ^1.20.0, got ${deps.axios}`, errors);
+    assert(!("ky" in deps), "package.json should NOT include ky", errors);
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase6FetcherConflict(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 6: fetcher conflict (kyjs + axios)";
+  const errors: string[] = [];
+  const appName = "test-fetcher-conflict";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "vite-react", "-w", "kyjs,axios", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode !== 0, `Expected non-zero exit code, got ${result.exitCode}`, errors);
+  assert(
+    !pathExists(appDir) || fs.readdirSync(appDir).length === 0,
+    `${appName}/ should not exist or should be empty`,
+    errors,
+  );
+  assert(/conflict/i.test(result.output), "Output should mention conflict", errors);
+  assert(/fetcher/i.test(result.output), "Output should mention fetcher group", errors);
 
   return { name, passed: errors.length === 0, errors };
 }
@@ -355,6 +426,8 @@ async function main(): Promise<void> {
     results.push(await testCase2LinterConflict(tarballPath));
     results.push(await testCase3EslintStandalone(tarballPath));
     results.push(await testCase4StateConflict(tarballPath));
+    results.push(await testCase5AxiosPass(tarballPath));
+    results.push(await testCase6FetcherConflict(tarballPath));
 
     printReport(results);
 

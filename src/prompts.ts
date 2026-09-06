@@ -35,6 +35,7 @@ async function promptClientRecipes(): Promise<string[] | null> {
   const recipeIds: string[] = [];
   const stateRecipes = getRecipesByCategory("state");
   const formRecipes = getRecipesByCategory("form");
+  const fetcherRecipes = getRecipesByCategory("fetcher");
 
   const stateChoice = await select<string>({
     message: "Select state management:",
@@ -72,6 +73,24 @@ async function promptClientRecipes(): Promise<string[] | null> {
     return null;
   }
 
+  const fetcherChoice = await select<string>({
+    message: "Select HTTP fetcher:",
+    options: [
+      ...fetcherRecipes.map((recipe) => ({
+        value: recipe.id,
+        label: recipe.name,
+        hint: recipe.id === "kyjs" ? "Lightweight fetch wrapper" : undefined,
+      })),
+      { value: "none", label: "No HTTP client" },
+    ],
+    initialValue: "none",
+  });
+
+  if (isCancel(fetcherChoice)) {
+    cancel("Cancelled.");
+    return null;
+  }
+
   const linterChoice = await select<LinterChoice>({
     message: "Select linter / formatter:",
     options: [
@@ -95,6 +114,10 @@ async function promptClientRecipes(): Promise<string[] | null> {
     recipeIds.push(formChoice);
   }
 
+  if (fetcherChoice !== "none") {
+    recipeIds.push(fetcherChoice);
+  }
+
   const linterRecipe = mapLinterToRecipe(linterChoice);
   if (linterRecipe) {
     recipeIds.push(linterRecipe);
@@ -104,7 +127,7 @@ async function promptClientRecipes(): Promise<string[] | null> {
 }
 
 async function promptRecipesForScope(scope: Scope): Promise<string[] | null> {
-  if (scope === "client") {
+  if (scope === "client" || scope === "hybrid") {
     return promptClientRecipes();
   }
 

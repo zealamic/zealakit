@@ -13,6 +13,7 @@ export type RecipeCategory =
   | "state"
   | "ui"
   | "form"
+  | "fetcher"
   | "orm"
   | "infrastructure"
   | "utils";

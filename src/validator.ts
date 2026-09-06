@@ -193,6 +193,13 @@ export function validateRecipeConflicts(recipeIds: string[]): ValidationResult {
       continue;
     }
 
+    if (category === "fetcher" && ids.length >= 2) {
+      errors.push(
+        `✖ Conflict: Cannot select both ${names} in the fetcher group. Please choose only one.`,
+      );
+      continue;
+    }
+
     errors.push(
       `✖ Conflict: Cannot select both ${names} in the ${category} group. Please choose only one.`,
     );

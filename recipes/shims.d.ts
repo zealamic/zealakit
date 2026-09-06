@@ -44,3 +44,87 @@ declare module "@hookform/resolvers/zod" {
 declare module "react-hook-form" {
   export function useForm<T>(options?: { resolver?: unknown; defaultValues?: Partial<T> }): unknown;
 }
+
+declare module "ky" {
+  interface KyResponse extends Promise<Response> {
+    json<T = unknown>(): Promise<T>;
+  }
+
+  type BeforeRequestHook = (state: { request: Request }) => void | Promise<void>;
+
+  type AfterResponseHook = (state: {
+    request: Request;
+    response: Response;
+    retryCount: number;
+  }) => unknown;
+
+  interface KyInstance {
+    (url: string, options?: unknown): KyResponse;
+    create(options?: {
+      prefix?: string;
+      headers?: Record<string, string>;
+      hooks?: {
+        beforeRequest?: BeforeRequestHook[];
+        afterResponse?: AfterResponseHook[];
+      };
+    }): KyInstance;
+    post(url: string, options?: { json?: unknown }): KyResponse;
+    retry(options?: { request?: Request; code?: string }): unknown;
+  }
+
+  const ky: KyInstance;
+  export default ky;
+}
+
+declare module "axios" {
+  interface AxiosRequestHeaders {
+    Authorization?: string;
+    [key: string]: string | undefined;
+  }
+
+  interface AxiosRequestConfig {
+    _retry?: boolean;
+    headers: AxiosRequestHeaders;
+  }
+
+  interface AxiosResponse<T = unknown> {
+    status: number;
+    data: T;
+  }
+
+  interface AxiosError {
+    response?: { status: number };
+    config?: AxiosRequestConfig;
+  }
+
+  interface AxiosInterceptorManager<T> {
+    use: (
+      onFulfilled?: (value: T) => T | Promise<T>,
+      onRejected?: (error: AxiosError) => unknown,
+    ) => number;
+  }
+
+  interface AxiosInstance {
+    (config: AxiosRequestConfig): Promise<AxiosResponse>;
+    interceptors: {
+      request: AxiosInterceptorManager<AxiosRequestConfig>;
+      response: AxiosInterceptorManager<AxiosResponse>;
+    };
+  }
+
+  interface AxiosStatic {
+    create(config?: { baseURL?: string; headers?: Record<string, string> }): AxiosInstance;
+    post<T = unknown>(url: string, data?: unknown): Promise<AxiosResponse<T>>;
+  }
+
+  const axios: AxiosStatic;
+  export default axios;
+}
+
+interface ImportMetaEnv {
+  readonly VITE_API_BASE_URL?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

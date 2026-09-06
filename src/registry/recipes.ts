@@ -86,6 +86,30 @@ export const recipes: Record<string, RecipeConfig> = {
     devDependencies: {},
     scripts: {},
   },
+  kyjs: {
+    id: "kyjs",
+    name: "Ky",
+    category: "fetcher",
+    supportedScopes: ["client", "hybrid"],
+    exclusive: true,
+    packages: {
+      ky: "^2.1.0",
+    },
+    devDependencies: {},
+    scripts: {},
+  },
+  axios: {
+    id: "axios",
+    name: "Axios",
+    category: "fetcher",
+    supportedScopes: ["client", "hybrid"],
+    exclusive: true,
+    packages: {
+      axios: "^1.20.0",
+    },
+    devDependencies: {},
+    scripts: {},
+  },
 };
 
 export const PROMPT_ONLY_RECIPES = ["shadcn"] as const;
