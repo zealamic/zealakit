@@ -1,6 +1,6 @@
 import { useFeatureAShell } from "./hooks/use-feature-a-shell-context";
 
-const FeatureADetailRoute = () => {
+const FeatureADetail = () => {
   const { detail, can } = useFeatureAShell();
 
   return (
@@ -18,4 +18,4 @@ const FeatureADetailRoute = () => {
   );
 };
 
-export default FeatureADetailRoute;
+export default FeatureADetail;

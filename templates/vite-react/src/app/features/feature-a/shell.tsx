@@ -17,7 +17,7 @@ const FeatureAShellContent = () => {
   );
 };
 
-const FeatureAShellRoute = () => {
+const FeatureAShell = () => {
   // do something with the routes or auth here
   return (
     <FeatureShell
@@ -50,4 +50,4 @@ const FeatureAShellRoute = () => {
   );
 };
 
-export default FeatureAShellRoute;
+export default FeatureAShell;

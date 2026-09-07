@@ -1,6 +1,6 @@
 import { useFeatureAShell } from "./hooks/use-feature-a-shell-context";
 
-const FeatureAListRoute = () => {
+const FeatureAList = () => {
   const { list, create, filter, can, isCommonLoading } = useFeatureAShell();
 
   return (
@@ -24,4 +24,4 @@ const FeatureAListRoute = () => {
   );
 };
 
-export default FeatureAListRoute;
+export default FeatureAList;

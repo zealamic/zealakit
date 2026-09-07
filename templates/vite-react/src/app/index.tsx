@@ -1,8 +1,6 @@
 import { Suspense } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router";
-import { routes } from "./routes";
-
-const router = createBrowserRouter(routes);
+import { RouterProvider } from "react-router";
+import router from "./router";
 
 const App = () => {
   return (
