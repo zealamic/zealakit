@@ -124,7 +124,14 @@ async function packCli(): Promise<string> {
 function verifyTarballContents(tarballPath: string): void {
   log(dim("→ Verifying tarball contents..."));
   const listing = execSync(`tar -tzf "${tarballPath}"`, { encoding: "utf-8" });
-  const requiredPrefixes = ["package/dist/", "package/templates/vite-react/", "package/recipes/"];
+  const requiredPrefixes = [
+    "package/dist/",
+    "package/templates/vite-react/",
+    "package/recipes/",
+    "package/recipes/biome/overlays/vite-react/biome.json",
+    "package/recipes/biome/overlays/nextjs/biome.json",
+    "package/recipes/hookform-zod/.cursor/skills/hookform-zod/SKILL.md",
+  ];
 
   for (const prefix of requiredPrefixes) {
     if (!listing.includes(prefix)) {
@@ -163,11 +170,71 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
     errors,
   );
   assert(
+    pathExists(path.join(appDir, ".cursor/skills/hookform-zod/SKILL.md")),
+    "hookform-zod recipe should copy the forms skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/rules/hookform-zod.mdc")),
+    "hookform-zod recipe should copy the forms rule",
+    errors,
+  );
+  assert(
+    !pathExists(path.join(appDir, ".cursor/skills/project-structure/forms.md")),
+    "forms.md should not live under project-structure",
+    errors,
+  );
+  assert(
+    !pathExists(path.join(appDir, "scaffold")),
+    "recipe scaffold/ directory should NOT be copied into the project",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/hookform-zod/SKILL.md"),
+      "AGENTS.md should link the hookform-zod skill",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "CLAUDE.md"))) {
+    const claude = fs.readFileSync(path.join(appDir, "CLAUDE.md"), "utf-8");
+    assert(
+      claude.includes(".cursor/skills/hookform-zod/SKILL.md"),
+      "CLAUDE.md should link the hookform-zod skill",
+      errors,
+    );
+  }
+  assert(
     pathExists(path.join(appDir, "src/lib/fetcher/index.ts")),
     "kyjs recipe should copy src/lib/fetcher/index.ts",
     errors,
   );
   assert(pathExists(path.join(appDir, "biome.json")), "biome.json should exist", errors);
+  assert(
+    !pathExists(path.join(appDir, "overlays")),
+    "recipe overlays/ directory should NOT be copied into the project",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "biome.json"))) {
+    const biomeConfig = JSON.parse(fs.readFileSync(path.join(appDir, "biome.json"), "utf-8")) as {
+      root?: boolean;
+      linter?: { domains?: Record<string, string> };
+    };
+    assert(
+      biomeConfig.root === undefined,
+      "scaffolded biome.json should not set root: false",
+      errors,
+    );
+    assert(
+      biomeConfig.linter?.domains?.next === undefined,
+      "vite-react biome overlay should not enable the next domain",
+      errors,
+    );
+  }
   assert(
     pathExists(path.join(appDir, "src/stores/something.store.ts")),
     "something.store.ts should exist",
@@ -270,6 +337,20 @@ async function testCase3EslintStandalone(tarballPath: string): Promise<TestCaseR
     "fetcher should NOT exist when no fetcher recipe is selected",
     errors,
   );
+  assert(
+    !pathExists(path.join(appDir, ".cursor/skills/hookform-zod/SKILL.md")),
+    "hookform-zod skill should NOT exist when the form recipe is not selected",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      !agents.includes(".cursor/skills/hookform-zod/SKILL.md"),
+      "AGENTS.md should not link hookform-zod when the form recipe is not selected",
+      errors,
+    );
+  }
 
   if (pathExists(path.join(appDir, "package.json"))) {
     const pkg = readPackageJson(appDir);

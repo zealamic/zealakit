@@ -32,8 +32,29 @@ function getBaseTemplatePath(templateId: string): string {
   return path.join(TEMPLATES_DIR, template.path);
 }
 
+const RECIPE_OVERLAYS_DIR = "overlays";
+const RECIPE_SCAFFOLD_DIR = "scaffold";
+const RECIPE_META_DIRS = new Set([RECIPE_OVERLAYS_DIR, RECIPE_SCAFFOLD_DIR]);
+
 function getRecipeFilesPath(recipeId: string): string {
   return path.join(RECIPES_DIR, recipeId);
+}
+
+function listRecipeOverlayIds(overlaysDir: string): string[] {
+  return fs
+    .readdirSync(overlaysDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+}
+
+function isInsideRecipeMetaDir(recipePath: string, srcPath: string): boolean {
+  const relativePath = path.relative(recipePath, srcPath);
+  if (relativePath === "" || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    return false;
+  }
+
+  return RECIPE_META_DIRS.has(relativePath.split(path.sep)[0] ?? "");
 }
 
 function mergeDependencyRecords(
@@ -56,13 +77,86 @@ function mergeScripts(
   };
 }
 
-function copyDirectoryContents(source: string, destination: string): void {
+function copyDirectoryContents(
+  source: string,
+  destination: string,
+  filter?: (src: string) => boolean,
+): void {
   if (!fs.existsSync(source)) {
     throw new Error(`Source directory does not exist: ${source}`);
   }
 
   fse.ensureDirSync(destination);
-  fse.copySync(source, destination, { overwrite: true, errorOnExist: false });
+  fse.copySync(source, destination, { overwrite: true, errorOnExist: false, filter });
+}
+
+function copyRecipeFiles(recipeId: string, templateId: string, targetDir: string): void {
+  const recipePath = getRecipeFilesPath(recipeId);
+
+  if (!fs.existsSync(recipePath)) {
+    throw new Error(`Recipe files do not exist: ${recipeId}`);
+  }
+
+  copyDirectoryContents(recipePath, targetDir, (src) => !isInsideRecipeMetaDir(recipePath, src));
+
+  const overlaysDir = path.join(recipePath, RECIPE_OVERLAYS_DIR);
+  if (!fs.existsSync(overlaysDir)) {
+    return;
+  }
+
+  const overlayPath = path.join(overlaysDir, templateId);
+  if (!fs.existsSync(overlayPath)) {
+    const available = listRecipeOverlayIds(overlaysDir);
+    throw new Error(
+      `Recipe '${recipeId}' has no overlay for template '${templateId}'. Available: ${available.join(", ") || "(none)"}.`,
+    );
+  }
+
+  copyDirectoryContents(overlayPath, targetDir);
+}
+
+function insertAgentEntry(filePath: string, entry: string): void {
+  if (!fs.existsSync(filePath)) {
+    return;
+  }
+
+  let raw = fs.readFileSync(filePath, "utf-8");
+  const lines = entry
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter((line) => line.trim().length > 0);
+  const missing = lines.filter((line) => !raw.includes(line));
+
+  if (missing.length === 0) {
+    return;
+  }
+
+  const block = `${missing.join("\n")}\n`;
+
+  if (/^- \*\*Structure:\*\*[^\n]*\n/m.test(raw)) {
+    raw = raw.replace(/(^- \*\*Structure:\*\*[^\n]*\n)/m, `$1${block}`);
+  } else if (raw.includes("## Always follow")) {
+    raw = raw.replace(/(## Always follow\n\n)/, `$1${block}`);
+  } else {
+    raw = `${raw.trimEnd()}\n\n${block}`;
+  }
+
+  fs.writeFileSync(filePath, raw, "utf-8");
+}
+
+function applyRecipeAgentEntry(recipeId: string, targetDir: string): void {
+  const entryPath = path.join(getRecipeFilesPath(recipeId), RECIPE_SCAFFOLD_DIR, "agent-entry.md");
+  if (!fs.existsSync(entryPath)) {
+    return;
+  }
+
+  const entry = fs.readFileSync(entryPath, "utf-8").trim();
+  if (!entry) {
+    return;
+  }
+
+  insertAgentEntry(path.join(targetDir, "AGENTS.md"), entry);
+  insertAgentEntry(path.join(targetDir, "CLAUDE.md"), entry);
 }
 
 function mergePackageJson(targetDir: string, config: ScaffoldConfig): void {
@@ -114,13 +208,8 @@ export async function scaffoldProject(
   copyDirectoryContents(baseTemplatePath, targetDir);
 
   for (const recipeId of config.recipeIds) {
-    const recipePath = getRecipeFilesPath(recipeId);
-
-    if (!fs.existsSync(recipePath)) {
-      throw new Error(`Recipe files do not exist: ${recipeId}`);
-    }
-
-    copyDirectoryContents(recipePath, targetDir);
+    copyRecipeFiles(recipeId, config.templateId, targetDir);
+    applyRecipeAgentEntry(recipeId, targetDir);
   }
 
   if (config.recipeIds.includes("biome")) {
