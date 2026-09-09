@@ -128,3 +128,34 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare module "react" {
+  export type ReactNode = unknown;
+  export type ReactElement = unknown;
+}
+
+declare module "react/jsx-runtime" {
+  export function jsx(...args: unknown[]): unknown;
+  export function jsxs(...args: unknown[]): unknown;
+  export const Fragment: unknown;
+}
+
+declare module "react-router" {
+  export function RouterProvider(props: { router: unknown }): unknown;
+}
+
+declare module "antd" {
+  export function ConfigProvider(props: { children?: unknown; theme?: unknown }): unknown;
+  export function App(props: { children?: unknown }): unknown;
+  export const Button: unknown;
+  export const Card: unknown;
+  export const Flex: unknown;
+  export const Form: unknown;
+  export const Input: unknown;
+  export const Modal: unknown;
+  export const Select: unknown;
+  export const Space: unknown;
+  export const Table: unknown;
+  export const Tag: unknown;
+  export const Typography: unknown;
+}

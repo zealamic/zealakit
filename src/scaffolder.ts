@@ -33,8 +33,9 @@ function getBaseTemplatePath(templateId: string): string {
 }
 
 const RECIPE_OVERLAYS_DIR = "overlays";
+const RECIPE_SHARED_DIR = "shared";
 const RECIPE_SCAFFOLD_DIR = "scaffold";
-const RECIPE_META_DIRS = new Set([RECIPE_OVERLAYS_DIR, RECIPE_SCAFFOLD_DIR]);
+const RECIPE_META_DIRS = new Set([RECIPE_OVERLAYS_DIR, RECIPE_SHARED_DIR, RECIPE_SCAFFOLD_DIR]);
 
 function getRecipeFilesPath(recipeId: string): string {
   return path.join(RECIPES_DIR, recipeId);
@@ -99,6 +100,11 @@ function copyRecipeFiles(recipeId: string, templateId: string, targetDir: string
 
   copyDirectoryContents(recipePath, targetDir, (src) => !isInsideRecipeMetaDir(recipePath, src));
 
+  const sharedPath = path.join(recipePath, RECIPE_SHARED_DIR);
+  if (fs.existsSync(sharedPath)) {
+    copyDirectoryContents(sharedPath, targetDir);
+  }
+
   const overlaysDir = path.join(recipePath, RECIPE_OVERLAYS_DIR);
   if (!fs.existsSync(overlaysDir)) {
     return;
@@ -142,6 +148,29 @@ function insertAgentEntry(filePath: string, entry: string): void {
   }
 
   fs.writeFileSync(filePath, raw, "utf-8");
+}
+
+function applyRecipeFileTransforms(recipeId: string, templateId: string, targetDir: string): void {
+  const recipe = getRecipe(recipeId);
+  const transforms = recipe?.fileTransforms?.[templateId];
+  if (!transforms?.length) {
+    return;
+  }
+
+  for (const transform of transforms) {
+    const filePath = path.join(targetDir, transform.file);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Recipe '${recipeId}' transform target not found: ${transform.file}`);
+    }
+
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const next = raw.replace(transform.pattern, transform.replacement);
+    if (next === raw) {
+      throw new Error(`Recipe '${recipeId}' transform did not match in ${transform.file}`);
+    }
+
+    fs.writeFileSync(filePath, next, "utf-8");
+  }
 }
 
 function applyRecipeAgentEntry(recipeId: string, targetDir: string): void {
@@ -210,6 +239,7 @@ export async function scaffoldProject(
   for (const recipeId of config.recipeIds) {
     copyRecipeFiles(recipeId, config.templateId, targetDir);
     applyRecipeAgentEntry(recipeId, targetDir);
+    applyRecipeFileTransforms(recipeId, config.templateId, targetDir);
   }
 
   if (config.recipeIds.includes("biome")) {

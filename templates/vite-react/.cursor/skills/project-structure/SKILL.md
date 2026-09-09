@@ -52,6 +52,9 @@ src/
 │   ├── index.tsx            # Thin app shell: loading fallback + router provider
 │   ├── router/              # Route tree composition (lazy segments)
 │   └── features/            # One folder per business feature
+├── layouts/                 # App chrome shells (route-level; not feature UI)
+│   ├── console-layout/      # Authenticated app frame (sidebar, header, footer, …)
+│   └── entry-layout/        # Unauthenticated entry (login, sign-up, forgot password, …)
 ├── components/
 │   └── feature-shell/       # Shared feature chrome (list/detail/overlays)
 ├── lib/
@@ -72,8 +75,9 @@ Folders added by recipes (same **role**, library may vary):
 | `src/lib/schemas/` | Validation schemas for forms / payloads | Zod, Valibot, … |
 | `src/lib/fetcher/` | Shared HTTP client instance + interceptors | Ky, Axios, … |
 | `src/lib/utils/` | Pure helpers | — |
+| `src/components/ui/` | Design-system primitive wrappers | Ant Design, … |
 
-Optional later (create when needed; do not invent a dump drawer): `components/ui/`, `components/layouts/`, `queries/`.
+Optional later (create when needed; do not invent a dump drawer): `queries/`.
 
 ---
 
@@ -140,10 +144,33 @@ Features wrap shell content with this chrome and read its context from a hook (r
 
 If a widget is only used by one feature → move under that feature’s `components/`.
 
-### `src/components/ui/` and `layouts/` (when added)
+### `src/layouts/`
 
-- `ui/` — primitive wrappers (no API calls, no feature copy).
-- `layouts/` — app chrome only (nav, auth layout). No CRUD forms.
+App-level chrome used by the router — **not** feature screens and **not** CRUD forms.
+
+```
+layouts/
+├── console-layout/          # Logged-in frame: sidebar, header, footer, …
+│   └── index.tsx
+└── entry-layout/            # Public auth entry: login, sign-up, forgot password, …
+    └── index.tsx
+```
+
+| Layout | Role |
+| --- | --- |
+| `console-layout` | Shell around authenticated console routes |
+| `entry-layout` | Shell around unauthenticated entry routes |
+
+**Rules**
+
+- One kebab-case folder per layout; export the layout component from `index.tsx`.
+- Layouts may wrap an `<Outlet />` (or children) and shared chrome only.
+- No API calls, no form submit logic, no feature-specific copy beyond chrome labels.
+- Feature chrome (list/detail/create) stays in `components/feature-shell/` or `features/<feature>/shell.tsx` — do not fold that into `layouts/`.
+
+### `src/components/ui/` (when a UI recipe is applied)
+
+Design-system primitive wrappers (no API calls, no feature copy). One kebab-case file per primitive (`button.tsx`, …); re-export from `index.ts`. Import via `@/components/ui`, not the vendor package.
 
 ### `src/lib/`
 
@@ -199,9 +226,9 @@ Global stylesheets and token files. Component-scoped styles live next to the com
 
 | What | Case | Example |
 | --- | --- | --- |
-| Folders | `kebab-case` | `feature-a/`, `feature-shell/` |
+| Folders | `kebab-case` | `feature-a/`, `feature-shell/`, `console-layout/` |
 | Source files | `kebab-case` | `use-feature-a-shell-context.ts` |
-| Component / type identifiers | `PascalCase` | `FeatureAShell`, `ExampleModel` |
+| Component / type identifiers | `PascalCase` | `FeatureAShell`, `ConsoleLayout`, `ExampleModel` |
 | Hooks / functions | `camelCase` | `useFeatureShell`; file `use-feature-shell.ts` |
 
 **Exceptions:** dotfiles / tooling (`package.json`, lint configs, `tsconfig.json`, bundler config), `index.html`, `main.tsx`, locale `*.json` names.
@@ -211,6 +238,7 @@ Global stylesheets and token files. Component-scoped styles live next to the com
 | Feature screens | `<intent>.tsx` at feature root | `shell.tsx`, `list.tsx`, `login.tsx` |
 | Router area | `app/router/<area>.tsx` | `feature-a.tsx` |
 | Component folder | `kebab-case/` + `index.tsx` | `some-comp/index.tsx` |
+| App layout | `layouts/<name>-layout/` + `index.tsx` | `layouts/entry-layout/index.tsx` |
 | API module | `kebab-case.ts` | `example.ts` |
 | Models | `<name>.model.ts` | `example.model.ts` |
 | Schemas | `<name>.schema.ts` | `example.schema.ts` |
@@ -240,12 +268,13 @@ Use `interface` only for declaration merging (ambient `.d.ts`). Prefer `import t
 
 1. **Tied to one URL / screen?** → `app/features/<feature>/<intent>.tsx`
 2. **UI only that feature uses?** → `features/<feature>/components/`
-3. **List/detail chrome reused across features?** → `components/feature-shell/`
-4. **Reusable composite?** → `components/<shared-widget>/`
-5. **Primitive control?** → `components/ui/` (when present)
-6. **API / path constant / schema / pure helper?** → `lib/`
-7. **Session or UI global state?** → `stores/`
-8. **Copy / static JSON?** → `assets/locales/`
+3. **App chrome around many routes (sidebar / auth frame)?** → `layouts/<name>-layout/`
+4. **List/detail chrome reused across features?** → `components/feature-shell/`
+5. **Reusable composite?** → `components/<shared-widget>/`
+6. **Primitive control?** → `components/ui/` (when present)
+7. **API / path constant / schema / pure helper?** → `lib/`
+8. **Session or UI global state?** → `stores/`
+9. **Copy / static JSON?** → `assets/locales/`
 
 ---
 
@@ -283,7 +312,8 @@ Form validation: a form recipe may add a skill under `.cursor/skills/`.
 | `interface` for props/models by default | `type` |
 | Hardcoded validation strings in schemas | Schema factory with `t` (form recipe skill, when present) |
 | API calls inside `components/ui` | `lib/apis` + feature/route |
-| Business logic in layouts | Feature hooks / screens |
+| Business logic / CRUD in `layouts/` | Feature hooks / screens; CRUD chrome → `feature-shell` |
+| Layouts under `components/layouts/` | Top-level `src/layouts/<name>-layout/` |
 | Bind a folder to one library forever | Same folder, recipe picks the library |
 
 ---

@@ -1,4 +1,12 @@
-import { cancel, confirm, intro, isCancel, outro, select, text } from "@clack/prompts";
+import {
+  cancel,
+  confirm,
+  intro,
+  isCancel,
+  outro,
+  select,
+  text,
+} from "@clack/prompts";
 import pc from "picocolors";
 import {
   getAllTemplateIds,
@@ -36,6 +44,7 @@ async function promptClientRecipes(): Promise<string[] | null> {
   const stateRecipes = getRecipesByCategory("state");
   const formRecipes = getRecipesByCategory("form");
   const fetcherRecipes = getRecipesByCategory("fetcher");
+  const uiRecipes = getRecipesByCategory("ui");
 
   const stateChoice = await select<string>({
     message: "Select state management:",
@@ -91,10 +100,31 @@ async function promptClientRecipes(): Promise<string[] | null> {
     return null;
   }
 
+  const uiChoice = await select<string>({
+    message: "Select UI kit:",
+    options: [
+      ...uiRecipes.map((recipe) => ({
+        value: recipe.id,
+        label: recipe.name,
+      })),
+      { value: "none", label: "No UI kit" },
+    ],
+    initialValue: "none",
+  });
+
+  if (isCancel(uiChoice)) {
+    cancel("Cancelled.");
+    return null;
+  }
+
   const linterChoice = await select<LinterChoice>({
     message: "Select linter / formatter:",
     options: [
-      { value: "biome", label: "Biome — Fast, all-in-one", hint: "Recommended" },
+      {
+        value: "biome",
+        label: "Biome — Fast, all-in-one",
+        hint: "Recommended",
+      },
       { value: "eslint", label: "ESLint — Flat Config" },
       { value: "none", label: "No linter" },
     ],
@@ -116,6 +146,10 @@ async function promptClientRecipes(): Promise<string[] | null> {
 
   if (fetcherChoice !== "none") {
     recipeIds.push(fetcherChoice);
+  }
+
+  if (uiChoice !== "none") {
+    recipeIds.push(uiChoice);
   }
 
   const linterRecipe = mapLinterToRecipe(linterChoice);

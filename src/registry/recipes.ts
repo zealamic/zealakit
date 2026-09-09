@@ -110,9 +110,34 @@ export const recipes: Record<string, RecipeConfig> = {
     devDependencies: {},
     scripts: {},
   },
+  antd: {
+    id: "antd",
+    name: "Ant Design",
+    category: "ui",
+    supportedScopes: ["client", "hybrid"],
+    exclusive: true,
+    packages: {
+      antd: "^6.6.3",
+    },
+    devDependencies: {},
+    scripts: {},
+    fileTransforms: {
+      "vite-react": [
+        {
+          file: "src/main.tsx",
+          pattern: /import App from "\.\/app";/,
+          replacement:
+            'import App from "./app";\nimport { AntdThemeProvider } from "./app/antd-theme-provider";',
+        },
+        {
+          file: "src/main.tsx",
+          pattern: /<App \/>/g,
+          replacement: "<AntdThemeProvider><App /></AntdThemeProvider>",
+        },
+      ],
+    },
+  },
 };
-
-export const PROMPT_ONLY_RECIPES = ["shadcn"] as const;
 
 export function getRecipe(id: string): RecipeConfig | undefined {
   return recipes[id];

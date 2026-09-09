@@ -10,6 +10,5 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": ["./**/*.ts", "./shims.d.ts"],
-  "exclude": []
+  "include": ["./**/*.ts", "./**/*.tsx", "./shims.d.ts"]
 }

@@ -18,6 +18,12 @@ export type RecipeCategory =
   | "infrastructure"
   | "utils";
 
+export type RecipeFileTransform = {
+  file: string;
+  pattern: RegExp;
+  replacement: string;
+};
+
 export interface RecipeConfig {
   id: string;
   name: string;
@@ -31,6 +37,8 @@ export interface RecipeConfig {
   packages: Record<string, string>;
   devDependencies: Record<string, string>;
   scripts: Record<string, string>;
+  /** Regex replacements applied per template after the recipe overlay is copied */
+  fileTransforms?: Record<string, RecipeFileTransform[]>;
 }
 
 export interface ScaffoldConfig {

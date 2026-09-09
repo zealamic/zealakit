@@ -131,6 +131,9 @@ function verifyTarballContents(tarballPath: string): void {
     "package/recipes/biome/overlays/vite-react/biome.json",
     "package/recipes/biome/overlays/nextjs/biome.json",
     "package/recipes/hookform-zod/.cursor/skills/hookform-zod/SKILL.md",
+    "package/recipes/antd/overlays/vite-react/src/app/antd-theme-provider.tsx",
+    "package/recipes/antd/overlays/vite-react/src/configs/theme.ts",
+    "package/recipes/antd/shared/src/components/ui/index.ts",
   ];
 
   for (const prefix of requiredPrefixes) {
@@ -439,6 +442,97 @@ async function testCase6FetcherConflict(tarballPath: string): Promise<TestCaseRe
   return { name, passed: errors.length === 0, errors };
 }
 
+async function testCase7AntdPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 7: antd UI kit pass";
+  const errors: string[] = [];
+  const appName = "test-antd";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "vite-react", "-w", "antd", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    !pathExists(path.join(appDir, "overlays")),
+    "recipe overlays/ directory should NOT be copied into the project",
+    errors,
+  );
+  assert(
+    !pathExists(path.join(appDir, "shared")),
+    "recipe shared/ directory should NOT be copied into the project",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/app/antd-theme-provider.tsx")),
+    "vite-react antd overlay should copy src/app/antd-theme-provider.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/index.ts")),
+    "antd recipe should copy src/components/ui/index.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/button.tsx")),
+    "antd recipe should copy src/components/ui/button.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/configs/theme.ts")),
+    "antd recipe should copy src/configs/theme.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/antd/SKILL.md")),
+    "antd recipe should copy the UI kit skill",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/main.tsx"))) {
+    const main = fs.readFileSync(path.join(appDir, "src/main.tsx"), "utf-8");
+    assert(
+      main.includes('import { AntdThemeProvider } from "./app/antd-theme-provider"'),
+      "main.tsx should import AntdThemeProvider",
+      errors,
+    );
+    assert(
+      main.includes("<AntdThemeProvider><App /></AntdThemeProvider>"),
+      "main.tsx should wrap <App /> with AntdThemeProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/app/index.tsx"))) {
+    const appIndex = fs.readFileSync(path.join(appDir, "src/app/index.tsx"), "utf-8");
+    assert(
+      !appIndex.includes("AntdThemeProvider"),
+      "app/index.tsx should stay the template entry (no UI provider wrap)",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/antd/SKILL.md"),
+      "AGENTS.md should link the antd skill",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    assert("antd" in deps, "package.json should include antd", errors);
+    assert(deps.antd === "^6.6.3", `antd version should be ^6.6.3, got ${deps.antd}`, errors);
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
 function printReport(results: TestCaseResult[]): void {
   log(`\n${"=".repeat(60)}`);
   log("E2E Pack Test Report");
@@ -509,6 +603,7 @@ async function main(): Promise<void> {
     results.push(await testCase4StateConflict(tarballPath));
     results.push(await testCase5AxiosPass(tarballPath));
     results.push(await testCase6FetcherConflict(tarballPath));
+    results.push(await testCase7AntdPass(tarballPath));
 
     printReport(results);
 
