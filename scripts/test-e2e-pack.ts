@@ -134,6 +134,11 @@ function verifyTarballContents(tarballPath: string): void {
     "package/recipes/antd/overlays/vite-react/src/app/antd-theme-provider.tsx",
     "package/recipes/antd/overlays/vite-react/src/configs/theme.ts",
     "package/recipes/antd/shared/src/components/ui/index.ts",
+    "package/recipes/mui/overlays/vite-react/src/app/mui-theme-provider.tsx",
+    "package/recipes/mui/shared/src/components/ui/index.ts",
+    "package/recipes/shadcn-ui/overlays/vite-react/src/styles/global.css",
+    "package/recipes/shadcn-ui/shared/src/components/ui/index.ts",
+    "package/recipes/shadcn-ui/overlays/vite-react/components.json",
   ];
 
   for (const prefix of requiredPrefixes) {
@@ -278,6 +283,8 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
     assert(!("axios" in deps), "package.json should NOT include axios", errors);
     assert("@biomejs/biome" in devDeps, "package.json should include @biomejs/biome", errors);
     assert(!("antd" in deps), "package.json should NOT include antd", errors);
+    assert(!("@mui/material" in deps), "package.json should NOT include @mui/material", errors);
+    assert(!("shadcn" in deps), "package.json should NOT include shadcn", errors);
     assert(!("vitest" in devDeps), "package.json should NOT include vitest", errors);
     assert("check" in scripts, 'package.json scripts should include "check"', errors);
     assert(!("test" in scripts), 'package.json scripts should NOT include "test"', errors);
@@ -533,6 +540,236 @@ async function testCase7AntdPass(tarballPath: string): Promise<TestCaseResult> {
   return { name, passed: errors.length === 0, errors };
 }
 
+async function testCase8MuiPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 8: mui UI kit pass";
+  const errors: string[] = [];
+  const appName = "test-mui";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "vite-react", "-w", "mui", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    !pathExists(path.join(appDir, "overlays")),
+    "recipe overlays/ directory should NOT be copied into the project",
+    errors,
+  );
+  assert(
+    !pathExists(path.join(appDir, "shared")),
+    "recipe shared/ directory should NOT be copied into the project",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/app/mui-theme-provider.tsx")),
+    "vite-react mui overlay should copy src/app/mui-theme-provider.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/index.ts")),
+    "mui recipe should copy src/components/ui/index.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/button.tsx")),
+    "mui recipe should copy src/components/ui/button.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/configs/theme.ts")),
+    "mui recipe should copy src/configs/theme.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/mui/SKILL.md")),
+    "mui recipe should copy the UI kit skill",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/main.tsx"))) {
+    const main = fs.readFileSync(path.join(appDir, "src/main.tsx"), "utf-8");
+    assert(
+      main.includes('import { MuiThemeProvider } from "./app/mui-theme-provider"'),
+      "main.tsx should import MuiThemeProvider",
+      errors,
+    );
+    assert(
+      main.includes("<MuiThemeProvider><App /></MuiThemeProvider>"),
+      "main.tsx should wrap <App /> with MuiThemeProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/app/index.tsx"))) {
+    const appIndex = fs.readFileSync(path.join(appDir, "src/app/index.tsx"), "utf-8");
+    assert(
+      !appIndex.includes("MuiThemeProvider"),
+      "app/index.tsx should stay the template entry (no UI provider wrap)",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/mui/SKILL.md"),
+      "AGENTS.md should link the mui skill",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    assert("@mui/material" in deps, "package.json should include @mui/material", errors);
+    assert(
+      deps["@mui/material"] === "^9.4.0",
+      `@mui/material version should be ^9.4.0, got ${deps["@mui/material"]}`,
+      errors,
+    );
+    assert("@emotion/react" in deps, "package.json should include @emotion/react", errors);
+    assert("@emotion/styled" in deps, "package.json should include @emotion/styled", errors);
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase9ShadcnUiPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 9: shadcn-ui UI kit pass";
+  const errors: string[] = [];
+  const appName = "e2e-shadcn-ui";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "vite-react", "-w", "shadcn-ui", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    !pathExists(path.join(appDir, "overlays")),
+    "recipe overlays/ directory should NOT be copied into the project",
+    errors,
+  );
+  assert(
+    !pathExists(path.join(appDir, "shared")),
+    "recipe shared/ directory should NOT be copied into the project",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/index.ts")),
+    "shadcn-ui recipe should copy src/components/ui/index.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/button.tsx")),
+    "shadcn-ui recipe should copy src/components/ui/button.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/styles/global.css")),
+    "shadcn-ui recipe should overwrite src/styles/global.css",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "components.json")),
+    "shadcn-ui recipe should copy components.json",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/shadcn-ui/SKILL.md")),
+    "shadcn-ui recipe should copy the UI kit skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/lib/utils/other.ts")),
+    "shadcn-ui recipe should copy src/lib/utils/other.ts",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/main.tsx"))) {
+    const main = fs.readFileSync(path.join(appDir, "src/main.tsx"), "utf-8");
+    assert(
+      !main.includes("ShadcnThemeProvider"),
+      "main.tsx should keep the template entry (no theme provider wrap)",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/lib/utils/index.ts"))) {
+    const utilsIndex = fs.readFileSync(path.join(appDir, "src/lib/utils/index.ts"), "utf-8");
+    assert(
+      utilsIndex.includes('export * from "./api"'),
+      "lib/utils/index.ts should keep existing api export",
+      errors,
+    );
+    assert(
+      utilsIndex.includes('export * from "./other"'),
+      "lib/utils/index.ts should append other export",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "vite.config.ts"))) {
+    const viteConfig = fs.readFileSync(path.join(appDir, "vite.config.ts"), "utf-8");
+    assert(
+      viteConfig.includes("@tailwindcss/vite"),
+      "vite.config.ts should include Tailwind Vite plugin",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "components.json"))) {
+    const componentsJson = fs.readFileSync(path.join(appDir, "components.json"), "utf-8");
+    assert(
+      componentsJson.includes('"style": "base-vega"'),
+      "components.json should use base-vega style",
+      errors,
+    );
+    assert(
+      componentsJson.includes("src/styles/global.css"),
+      "components.json should point CSS at src/styles/global.css",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/shadcn-ui/SKILL.md"),
+      "AGENTS.md should link the shadcn-ui skill",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    assert("shadcn" in deps, "package.json should include shadcn", errors);
+    assert(
+      deps.shadcn === "^4.21.0",
+      `shadcn version should be ^4.21.0, got ${deps.shadcn}`,
+      errors,
+    );
+    assert("tailwindcss" in deps, "package.json should include tailwindcss", errors);
+    assert("@base-ui/react" in deps, "package.json should include @base-ui/react", errors);
+    assert("cn" in deps, "package.json should include cn", errors);
+    assert(
+      "@fontsource-variable/inter" in deps,
+      "package.json should include @fontsource-variable/inter",
+      errors,
+    );
+    assert(!("radix-ui" in deps), "package.json should NOT include radix-ui", errors);
+    assert(!("next-themes" in deps), "package.json should NOT include next-themes", errors);
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
 function printReport(results: TestCaseResult[]): void {
   log(`\n${"=".repeat(60)}`);
   log("E2E Pack Test Report");
@@ -604,6 +841,8 @@ async function main(): Promise<void> {
     results.push(await testCase5AxiosPass(tarballPath));
     results.push(await testCase6FetcherConflict(tarballPath));
     results.push(await testCase7AntdPass(tarballPath));
+    results.push(await testCase8MuiPass(tarballPath));
+    results.push(await testCase9ShadcnUiPass(tarballPath));
 
     printReport(results);
 

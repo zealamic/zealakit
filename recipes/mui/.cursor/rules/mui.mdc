@@ -1,0 +1,11 @@
+---
+description: MUI theme provider, tokens, and UI wrappers
+globs: "**/components/ui/**,**/app/mui-theme-provider.tsx,**/main.tsx,**/configs/theme.ts"
+alwaysApply: false
+---
+
+# UI kit
+
+When changing theme wiring or `MuiThemeProvider`, follow `.cursor/skills/mui/SKILL.md`.
+
+Import primitives from `@/components/ui`. Theme tokens live in `src/configs/theme.ts`.

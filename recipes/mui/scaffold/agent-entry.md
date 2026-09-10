@@ -1,0 +1,1 @@
+- **UI kit:** [.cursor/skills/mui/SKILL.md](.cursor/skills/mui/SKILL.md) — MuiThemeProvider, theme tokens, `src/components/ui/`

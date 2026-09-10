@@ -159,3 +159,50 @@ declare module "antd" {
   export const Tag: unknown;
   export const Typography: unknown;
 }
+
+declare module "@mui/material" {
+  export function ThemeProvider(props: { children?: unknown; theme?: unknown }): unknown;
+  export function CssBaseline(props?: { children?: unknown }): unknown;
+  export const Box: unknown;
+  export const Button: unknown;
+  export const Card: unknown;
+  export const Chip: unknown;
+  export const Dialog: unknown;
+  export const Select: unknown;
+  export const Stack: unknown;
+  export const Table: unknown;
+  export const TextField: unknown;
+  export const Typography: unknown;
+}
+
+declare module "@mui/material/styles" {
+  export function createTheme(options?: unknown): unknown;
+}
+
+declare module "cn" {
+  export function cn(...inputs: unknown[]): string;
+}
+
+declare module "class-variance-authority" {
+  export function cva(...args: unknown[]): (props?: Record<string, unknown>) => string;
+  export type VariantProps<T> = Record<string, unknown>;
+}
+
+declare module "@base-ui/react/button" {
+  export namespace Button {
+    type Props = Record<string, unknown>;
+  }
+  export function Button(props: Button.Props): unknown;
+}
+
+declare module "@tailwindcss/vite" {
+  export default function tailwindcss(): unknown;
+}
+
+declare module "@vitejs/plugin-react" {
+  export default function react(): unknown;
+}
+
+declare module "vite" {
+  export function defineConfig(config: unknown): unknown;
+}

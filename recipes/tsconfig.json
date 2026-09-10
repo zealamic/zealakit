@@ -8,7 +8,9 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "types": ["node"]
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./shims.d.ts"]
+  "include": ["./**/*.ts", "./**/*.tsx", "./shims.d.ts"],
+  "exclude": ["./antd/overlays/**/app/**", "./mui/overlays/**/app/**"]
 }

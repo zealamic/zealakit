@@ -137,6 +137,63 @@ export const recipes: Record<string, RecipeConfig> = {
       ],
     },
   },
+  mui: {
+    id: "mui",
+    name: "MUI",
+    category: "ui",
+    supportedScopes: ["client", "hybrid"],
+    exclusive: true,
+    packages: {
+      "@mui/material": "^9.4.0",
+      "@emotion/react": "^11.14.0",
+      "@emotion/styled": "^11.14.0",
+    },
+    devDependencies: {},
+    scripts: {},
+    fileTransforms: {
+      "vite-react": [
+        {
+          file: "src/main.tsx",
+          pattern: /import App from "\.\/app";/,
+          replacement:
+            'import App from "./app";\nimport { MuiThemeProvider } from "./app/mui-theme-provider";',
+        },
+        {
+          file: "src/main.tsx",
+          pattern: /<App \/>/g,
+          replacement: "<MuiThemeProvider><App /></MuiThemeProvider>",
+        },
+      ],
+    },
+  },
+  "shadcn-ui": {
+    id: "shadcn-ui",
+    name: "shadcn/ui (core: base-ui | theme: vega | icons: lucide)",
+    category: "ui",
+    supportedScopes: ["client", "hybrid"],
+    exclusive: true,
+    packages: {
+      shadcn: "^4.21.0",
+      "@base-ui/react": "^1.8.0",
+      "@fontsource-variable/inter": "^5.3.0",
+      cn: "^0.2.6",
+      "class-variance-authority": "^0.7.1",
+      "lucide-react": "^1.43.0",
+      tailwindcss: "^4.3.3",
+      "@tailwindcss/vite": "^4.3.3",
+      "tw-animate-css": "^1.4.0",
+    },
+    devDependencies: {},
+    scripts: {},
+    fileTransforms: {
+      "vite-react": [
+        {
+          file: "src/lib/utils/index.ts",
+          append: 'export * from "./other";',
+        },
+      ],
+    },
+  },
 };
 
 export function getRecipe(id: string): RecipeConfig | undefined {

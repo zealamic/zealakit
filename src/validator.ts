@@ -133,15 +133,10 @@ export function validateTemplate(templateId: string): ValidationResult {
 
 export function validateRecipeIds(recipeIds: string[]): ValidationResult {
   const errors: string[] = [];
-  const unknown = recipeIds.filter((id) => !getRecipe(id) && id !== "shadcn");
+  const unknown = recipeIds.filter((id) => !getRecipe(id));
 
   if (unknown.length > 0) {
     errors.push(`Invalid recipe(s): ${unknown.map((id) => `'${id}'`).join(", ")}.`);
-  }
-
-  const unsupported = recipeIds.filter((id) => id === "shadcn");
-  if (unsupported.length > 0) {
-    errors.push(`Recipe 'shadcn' is not supported yet. Please skip the UI recipe for now.`);
   }
 
   return { valid: errors.length === 0, errors };

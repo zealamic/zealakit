@@ -11,9 +11,7 @@ import type {
   UpdateExampleOutput,
 } from "./models/example.model";
 
-export const getExampleList = async (
-  input: GetExampleListInput,
-): Promise<GetExampleListOutput> => {
+export const getExampleList = async (input: GetExampleListInput): Promise<GetExampleListOutput> => {
   console.log(input);
   // TODO: Implement
   return Promise.resolve({
@@ -49,9 +47,7 @@ export const getExampleDetail = async (
   });
 };
 
-export const createExample = async (
-  input: CreateExampleInput,
-): Promise<CreateExampleOutput> => {
+export const createExample = async (input: CreateExampleInput): Promise<CreateExampleOutput> => {
   console.log(input);
   // TODO: Implement
   return Promise.resolve({
@@ -65,9 +61,7 @@ export const createExample = async (
   });
 };
 
-export const updateExample = async (
-  input: UpdateExampleInput,
-): Promise<UpdateExampleOutput> => {
+export const updateExample = async (input: UpdateExampleInput): Promise<UpdateExampleOutput> => {
   console.log(input);
   // TODO: Implement
   return Promise.resolve({
@@ -81,9 +75,7 @@ export const updateExample = async (
   });
 };
 
-export const deleteExample = async (
-  input: DeleteExampleInput,
-): Promise<DeleteExampleOutput> => {
+export const deleteExample = async (input: DeleteExampleInput): Promise<DeleteExampleOutput> => {
   console.log(input);
   // TODO: Implement
   return Promise.resolve({

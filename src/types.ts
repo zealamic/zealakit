@@ -20,8 +20,11 @@ export type RecipeCategory =
 
 export type RecipeFileTransform = {
   file: string;
-  pattern: RegExp;
-  replacement: string;
+  /** Regex replacement (mutually exclusive with `append`) */
+  pattern?: RegExp;
+  replacement?: string;
+  /** Append this text if missing — does not overwrite existing content */
+  append?: string;
 };
 
 export interface RecipeConfig {

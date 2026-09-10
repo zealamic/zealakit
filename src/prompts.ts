@@ -1,12 +1,4 @@
-import {
-  cancel,
-  confirm,
-  intro,
-  isCancel,
-  outro,
-  select,
-  text,
-} from "@clack/prompts";
+import { cancel, confirm, intro, isCancel, outro, select, text } from "@clack/prompts";
 import pc from "picocolors";
 import {
   getAllTemplateIds,

@@ -164,12 +164,30 @@ function applyRecipeFileTransforms(recipeId: string, templateId: string, targetD
     }
 
     const raw = fs.readFileSync(filePath, "utf-8");
-    const next = raw.replace(transform.pattern, transform.replacement);
-    if (next === raw) {
-      throw new Error(`Recipe '${recipeId}' transform did not match in ${transform.file}`);
+    let next = raw;
+
+    if (transform.append !== undefined) {
+      const line = transform.append.trim();
+      if (!line) {
+        throw new Error(`Recipe '${recipeId}' append transform for ${transform.file} is empty`);
+      }
+      if (!raw.includes(line)) {
+        next = `${raw.trimEnd()}\n${transform.append.endsWith("\n") ? transform.append : `${transform.append}\n`}`;
+      }
+    } else if (transform.pattern && transform.replacement !== undefined) {
+      next = raw.replace(transform.pattern, transform.replacement);
+      if (next === raw) {
+        throw new Error(`Recipe '${recipeId}' transform did not match in ${transform.file}`);
+      }
+    } else {
+      throw new Error(
+        `Recipe '${recipeId}' transform for ${transform.file} needs either append or pattern/replacement`,
+      );
     }
 
-    fs.writeFileSync(filePath, next, "utf-8");
+    if (next !== raw) {
+      fs.writeFileSync(filePath, next, "utf-8");
+    }
   }
 }
 
