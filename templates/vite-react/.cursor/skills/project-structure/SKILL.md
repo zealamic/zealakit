@@ -52,15 +52,16 @@ src/
 │   ├── index.tsx            # Thin app shell: loading fallback + router provider
 │   ├── router/              # Route tree composition (lazy segments)
 │   └── features/            # One folder per business feature
-├── layouts/                 # App chrome shells (route-level; not feature UI)
+├── layouts/                 # App chrome shells (from client-shared-pieces recipe)
 │   ├── console-layout/      # Authenticated app frame (sidebar, header, footer, …)
 │   └── entry-layout/        # Unauthenticated entry (login, sign-up, forgot password, …)
 ├── components/
 │   └── feature-shell/       # Shared feature chrome (list/detail/overlays)
-├── lib/
+├── lib/                     # Non-UI kernel (from client-shared-pieces recipe)
 │   ├── apis/                # Remote API functions + models
-│   └── constants/           # Routes, endpoints, locale codes, storage keys
-├── hooks/                   # Rare shared hooks only
+│   ├── constants/           # Routes, endpoints, locale codes, storage keys
+│   └── utils/               # Pure helpers
+├── hooks/                   # Rare shared hooks only (from client-shared-pieces recipe)
 ├── configs/                 # App bootstrap config (not business features)
 ├── assets/
 │   └── locales/<lang>/      # Copy namespaces (same filenames per language)
@@ -71,11 +72,11 @@ Folders added by recipes (same **role**, library may vary):
 
 | Folder | Role | Example libraries |
 | --- | --- | --- |
+| `src/hooks/`, `src/layouts/`, `src/lib/` | Shared client kernel (default recipe) | — |
 | `src/stores/` | Client / session UI state (not server cache) | Zustand, Nanostores, … |
 | `src/lib/schemas/` | Validation schemas for forms / payloads | Zod, Valibot, … |
 | `src/lib/fetcher/` | Shared HTTP client instance + interceptors | Ky, Axios, … |
-| `src/lib/utils/` | Pure helpers | — |
-| `src/components/ui/` | Design-system primitive wrappers | Ant Design, … |
+| `src/components/ui/` | Design-system primitive wrappers | Ant Design, MUI, shadcn/ui, … |
 
 Optional later (create when needed; do not invent a dump drawer): `queries/`.
 

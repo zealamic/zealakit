@@ -164,12 +164,27 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
   assert(pathExists(appDir), `Directory ${appName}/ was not created`, errors);
   assert(
     pathExists(path.join(appDir, "src/lib/utils/api.ts")),
-    "default client-utils recipe should copy api.ts",
+    "default client-shared-pieces recipe should copy lib/utils/api.ts",
     errors,
   );
   assert(
     pathExists(path.join(appDir, "src/lib/utils/index.ts")),
-    "default client-utils recipe should copy index.ts",
+    "default client-shared-pieces recipe should copy lib/utils/index.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/lib/constants/index.ts")),
+    "default client-shared-pieces recipe should copy lib/constants",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/hooks/use-mobile-view.ts")),
+    "default client-shared-pieces recipe should copy hooks",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/layouts/console-layout/index.ts")),
+    "default client-shared-pieces recipe should copy layouts",
     errors,
   );
   assert(
@@ -339,7 +354,7 @@ async function testCase3EslintStandalone(tarballPath: string): Promise<TestCaseR
   assert(!pathExists(path.join(appDir, "biome.json")), "biome.json should NOT exist", errors);
   assert(
     pathExists(path.join(appDir, "src/lib/utils/api.ts")),
-    "default client-utils recipe should copy api.ts",
+    "default client-shared-pieces recipe should copy api.ts",
     errors,
   );
   assert(

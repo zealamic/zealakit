@@ -62,9 +62,9 @@ export const recipes: Record<string, RecipeConfig> = {
     devDependencies: {},
     scripts: {},
   },
-  "client-utils": {
-    id: "client-utils",
-    name: "Client utils",
+  "client-shared-pieces": {
+    id: "client-shared-pieces",
+    name: "Client shared pieces",
     category: "utils",
     supportedScopes: ["client", "hybrid"],
     default: true,
