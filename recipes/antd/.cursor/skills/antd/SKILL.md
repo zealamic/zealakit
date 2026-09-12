@@ -1,8 +1,8 @@
 ---
 name: antd
 description: >-
-  Ant Design setup for this SPA: AntdThemeProvider, ConfigProvider, and theme
-  tokens. Use when wrapping the app with the design system or editing theme.
+  Ant Design setup: AntdThemeProvider, ConfigProvider, and theme tokens. Use
+  when wrapping the app with the design system or editing theme (Vite or Next).
 ---
 
 # UI kit (Ant Design)
@@ -15,7 +15,27 @@ This skill is present because the **UI recipe** is installed.
 - App wrapper: `src/app/antd-theme-provider.tsx` (`ConfigProvider` + Ant Design `App` for static `message` / `modal` APIs)
 - Primitives: `src/components/ui/` (real files — one kebab-case file per primitive, barrel in `index.ts`)
 
-Keep `AntdThemeProvider` around `<App />` in `src/main.tsx`. Do not mount a second `ConfigProvider` in feature screens unless you are intentionally overriding theme.
+### Vite
+
+Keep `AntdThemeProvider` around `<App />` in `src/main.tsx`.
+
+### Next.js (App Router)
+
+Wire carefully — do **not** copy the Vite `main.tsx` pattern:
+
+1. **Root** `src/app/layout.tsx`: wrap `{children}` with `AntdRegistry` from `@ant-design/nextjs-registry` (SSR style extraction; avoid FOUC).
+2. **Locale** `src/app/[locale]/layout.tsx`: wrap inside `NextIntlClientProvider` with client `AntdThemeProvider` (`"use client"`).
+
+```tsx
+// locale layout (simplified)
+<NextIntlClientProvider>
+  <AntdThemeProvider>{children}</AntdThemeProvider>
+</NextIntlClientProvider>
+```
+
+Do **not** put `ConfigProvider` / `AntdThemeProvider` in the root layout as a second document shell, and do **not** nest a second `AntdRegistry` under the theme provider.
+
+Do not mount a second `ConfigProvider` in feature screens unless you are intentionally overriding theme.
 
 ## Imports
 

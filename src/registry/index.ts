@@ -8,6 +8,7 @@ export {
 export {
   getAllTemplateIds,
   getTemplate,
+  getTemplateOverlayId,
   getTemplateScope,
   templates,
 } from "./templates.js";

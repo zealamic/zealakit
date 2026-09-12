@@ -132,12 +132,34 @@ interface ImportMeta {
 declare module "react" {
   export type ReactNode = unknown;
   export type ReactElement = unknown;
+  export type FC<P = Record<string, unknown>> = (props: P) => ReactElement | null;
 }
 
 declare module "react/jsx-runtime" {
-  export function jsx(...args: unknown[]): unknown;
-  export function jsxs(...args: unknown[]): unknown;
+  namespace JSX {
+    type Element = unknown;
+    type IntrinsicElements = Record<string, unknown>;
+  }
+  export function jsx(
+    type: unknown,
+    props: unknown,
+    key?: unknown,
+  ): JSX.Element;
+  export function jsxs(
+    type: unknown,
+    props: unknown,
+    key?: unknown,
+  ): JSX.Element;
+  export function jsxDEV(
+    type: unknown,
+    props: unknown,
+    key?: unknown,
+  ): JSX.Element;
   export const Fragment: unknown;
+}
+
+declare module "react/jsx-dev-runtime" {
+  export * from "react/jsx-runtime";
 }
 
 declare module "react-router" {
@@ -177,6 +199,13 @@ declare module "@mui/material" {
 
 declare module "@mui/material/styles" {
   export function createTheme(options?: unknown): unknown;
+}
+
+declare module "@mui/material-nextjs/v16-appRouter" {
+  export function AppRouterCacheProvider(props: {
+    children?: unknown;
+    options?: Record<string, unknown>;
+  }): unknown;
 }
 
 declare module "cn" {

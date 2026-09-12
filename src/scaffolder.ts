@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fse from "fs-extra";
 import pc from "picocolors";
-import { getRecipe, getTemplate } from "./registry/index.js";
+import { getRecipe, getTemplate, getTemplateOverlayId } from "./registry/index.js";
 import type { ScaffoldConfig } from "./types.js";
 
 interface PackageJson {
@@ -110,11 +110,12 @@ function copyRecipeFiles(recipeId: string, templateId: string, targetDir: string
     return;
   }
 
-  const overlayPath = path.join(overlaysDir, templateId);
+  const overlayId = getTemplateOverlayId(templateId);
+  const overlayPath = path.join(overlaysDir, overlayId);
   if (!fs.existsSync(overlayPath)) {
     const available = listRecipeOverlayIds(overlaysDir);
     throw new Error(
-      `Recipe '${recipeId}' has no overlay for template '${templateId}'. Available: ${available.join(", ") || "(none)"}.`,
+      `Recipe '${recipeId}' has no overlay for template '${templateId}' (overlay '${overlayId}'). Available: ${available.join(", ") || "(none)"}.`,
     );
   }
 
@@ -152,7 +153,9 @@ function insertAgentEntry(filePath: string, entry: string): void {
 
 function applyRecipeFileTransforms(recipeId: string, templateId: string, targetDir: string): void {
   const recipe = getRecipe(recipeId);
-  const transforms = recipe?.fileTransforms?.[templateId];
+  const overlayId = getTemplateOverlayId(templateId);
+  const transforms =
+    recipe?.fileTransforms?.[templateId] ?? recipe?.fileTransforms?.[overlayId];
   if (!transforms?.length) {
     return;
   }
@@ -224,10 +227,20 @@ function mergePackageJson(targetDir: string, config: ScaffoldConfig): void {
       continue;
     }
 
+    const overlayId = getTemplateOverlayId(config.templateId);
+
     packageJson.dependencies = mergeDependencyRecords(packageJson.dependencies, recipe.packages);
+    packageJson.dependencies = mergeDependencyRecords(
+      packageJson.dependencies,
+      recipe.overlayPackages?.[overlayId],
+    );
     packageJson.devDependencies = mergeDependencyRecords(
       packageJson.devDependencies,
       recipe.devDependencies,
+    );
+    packageJson.devDependencies = mergeDependencyRecords(
+      packageJson.devDependencies,
+      recipe.overlayDevDependencies?.[overlayId],
     );
     packageJson.scripts = mergeScripts(packageJson.scripts, recipe.scripts);
   }

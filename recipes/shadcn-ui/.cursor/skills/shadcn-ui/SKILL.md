@@ -12,9 +12,11 @@ This skill is present because the **UI recipe** is installed.
 
 ## Setup
 
-- Theme tokens / CSS variables: `src/styles/global.css`
+- Theme tokens / CSS variables:
+  - Vite: `src/styles/globals.css` (or `global.css` from the vite overlay)
+  - Next: `src/app/globals.css`
 - Primitives: `src/components/ui/` (real files — one kebab-case file per primitive, barrel in `index.ts`)
-- CLI config: `components.json` (style `base-vega`)
+- CLI config: `components.json` (style `base-vega`; `rsc: true` on Next)
 - Class helper: `cn` via `@/lib/utils` (`other.ts` + the `cn` package)
 - Add more components: `npx shadcn@^4.21.0 add <component>`
 
@@ -30,4 +32,4 @@ When a primitive needs extra props or app-specific defaults, edit its file under
 
 ## Theme
 
-Edit CSS variables in `src/styles/global.css`. Dark mode is class-based (`.dark`).
+Edit CSS variables in the theme stylesheet (`src/styles/globals.css` or `src/app/globals.css` on Next). Dark mode is class-based (`.dark`).

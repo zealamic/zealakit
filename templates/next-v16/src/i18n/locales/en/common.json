@@ -1,0 +1,20 @@
+{
+  "TEST": "Test",
+  "SITE": {
+    "BRAND": "Next v16",
+    "NAV": {
+      "HOME": "Home",
+      "ABOUT_US": "About us"
+    }
+  },
+  "PAGE": {
+    "HOME": {
+      "TITLE": "Welcome",
+      "DESCRIPTION": "Example home page under app/[locale]/(site)."
+    },
+    "ABOUT_US": {
+      "TITLE": "About us",
+      "DESCRIPTION": "Example about page under app/[locale]/(site)/about-us."
+    }
+  }
+}

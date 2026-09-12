@@ -12,5 +12,5 @@
     "types": ["node"]
   },
   "include": ["./**/*.ts", "./**/*.tsx", "./shims.d.ts"],
-  "exclude": ["./antd/overlays/**/app/**", "./mui/overlays/**/app/**"]
+  "exclude": ["./antd/overlays/vite-react/**/app/**", "./mui/overlays/vite-react/**/app/**"]
 }

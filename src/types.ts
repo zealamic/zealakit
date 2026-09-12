@@ -6,6 +6,11 @@ export interface TemplateConfig {
   scope: Scope;
   description: string;
   path: string;
+  /**
+   * Recipe overlay folder under `recipes/<id>/overlays/`.
+   * Defaults to `id`. Use a stable family id (e.g. `next`) so next-v16/v17 share overlays.
+   */
+  overlay?: string;
 }
 
 export type RecipeCategory =
@@ -38,9 +43,13 @@ export interface RecipeConfig {
   /** Always applied for matching template scopes (not shown in prompts) */
   default?: boolean;
   packages: Record<string, string>;
+  /** Extra packages merged for a specific overlay family (e.g. `next`, `vite-react`) */
+  overlayPackages?: Record<string, Record<string, string>>;
+  /** Extra devDependencies merged for a specific overlay family */
+  overlayDevDependencies?: Record<string, Record<string, string>>;
   devDependencies: Record<string, string>;
   scripts: Record<string, string>;
-  /** Regex replacements applied per template after the recipe overlay is copied */
+  /** Regex replacements applied per overlay (or template id) after the recipe overlay is copied */
   fileTransforms?: Record<string, RecipeFileTransform[]>;
 }
 

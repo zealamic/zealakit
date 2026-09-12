@@ -1,0 +1,20 @@
+{
+  "TEST": "Test",
+  "SITE": {
+    "BRAND": "Next v16",
+    "NAV": {
+      "HOME": "Trang chủ",
+      "ABOUT_US": "Về chúng tôi"
+    }
+  },
+  "PAGE": {
+    "HOME": {
+      "TITLE": "Chào mừng",
+      "DESCRIPTION": "Trang chủ mẫu trong app/[locale]/(site)."
+    },
+    "ABOUT_US": {
+      "TITLE": "Về chúng tôi",
+      "DESCRIPTION": "Trang giới thiệu mẫu trong app/[locale]/(site)/about-us."
+    }
+  }
+}

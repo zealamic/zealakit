@@ -129,16 +129,25 @@ function verifyTarballContents(tarballPath: string): void {
     "package/templates/vite-react/",
     "package/recipes/",
     "package/recipes/biome/overlays/vite-react/biome.json",
-    "package/recipes/biome/overlays/nextjs/biome.json",
+    "package/recipes/biome/overlays/next/biome.json",
     "package/recipes/hookform-zod/.cursor/skills/hookform-zod/SKILL.md",
     "package/recipes/antd/overlays/vite-react/src/app/antd-theme-provider.tsx",
     "package/recipes/antd/overlays/vite-react/src/configs/theme.ts",
+    "package/recipes/antd/overlays/next/src/app/antd-theme-provider.tsx",
+    "package/recipes/antd/overlays/next/src/configs/theme.ts",
+    "package/recipes/client-shared-pieces/overlays/vite-react/src/configs/i18n.ts",
+    "package/recipes/client-shared-pieces/shared/src/lib/utils/api.ts",
     "package/recipes/antd/shared/src/components/ui/index.ts",
     "package/recipes/mui/overlays/vite-react/src/app/mui-theme-provider.tsx",
+    "package/recipes/mui/overlays/next/src/app/mui-theme-provider.tsx",
+    "package/recipes/mui/overlays/next/src/configs/theme.ts",
     "package/recipes/mui/shared/src/components/ui/index.ts",
-    "package/recipes/shadcn-ui/overlays/vite-react/src/styles/global.css",
+    "package/recipes/shadcn-ui/overlays/vite-react/src/styles/globals.css",
+    "package/recipes/shadcn-ui/overlays/next/src/app/globals.css",
+    "package/recipes/shadcn-ui/overlays/next/components.json",
     "package/recipes/shadcn-ui/shared/src/components/ui/index.ts",
     "package/recipes/shadcn-ui/overlays/vite-react/components.json",
+    "package/templates/next-v16/package.json",
   ];
 
   for (const prefix of requiredPrefixes) {
@@ -187,6 +196,19 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
     "default client-shared-pieces recipe should copy layouts",
     errors,
   );
+  assert(
+    pathExists(path.join(appDir, "src/configs/i18n.ts")),
+    "client-shared-pieces vite-react overlay should copy configs/i18n.ts",
+    errors,
+  );
+  if (pathExists(path.join(appDir, "src/main.tsx"))) {
+    const main = fs.readFileSync(path.join(appDir, "src/main.tsx"), "utf-8");
+    assert(
+      main.includes('import "./configs/i18n";'),
+      "client-shared-pieces should wire configs/i18n.ts into main.tsx",
+      errors,
+    );
+  }
   assert(
     pathExists(path.join(appDir, "src/lib/schemas/example.schema.ts")),
     "example.schema.ts should exist",
@@ -603,6 +625,21 @@ async function testCase8MuiPass(tarballPath: string): Promise<TestCaseResult> {
     "mui recipe should copy the UI kit skill",
     errors,
   );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/material-ui-nextjs/SKILL.md")),
+    "mui recipe should copy material-ui-nextjs skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/material-ui-theming/SKILL.md")),
+    "mui recipe should copy material-ui-theming skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/material-ui-styling/SKILL.md")),
+    "mui recipe should copy material-ui-styling skill",
+    errors,
+  );
 
   if (pathExists(path.join(appDir, "src/main.tsx"))) {
     const main = fs.readFileSync(path.join(appDir, "src/main.tsx"), "utf-8");
@@ -632,6 +669,11 @@ async function testCase8MuiPass(tarballPath: string): Promise<TestCaseResult> {
     assert(
       agents.includes(".cursor/skills/mui/SKILL.md"),
       "AGENTS.md should link the mui skill",
+      errors,
+    );
+    assert(
+      agents.includes(".cursor/skills/material-ui-nextjs/SKILL.md"),
+      "AGENTS.md should link the material-ui-nextjs skill",
       errors,
     );
   }
@@ -686,8 +728,8 @@ async function testCase9ShadcnUiPass(tarballPath: string): Promise<TestCaseResul
     errors,
   );
   assert(
-    pathExists(path.join(appDir, "src/styles/global.css")),
-    "shadcn-ui recipe should overwrite src/styles/global.css",
+    pathExists(path.join(appDir, "src/styles/globals.css")),
+    "shadcn-ui recipe should overwrite src/styles/globals.css",
     errors,
   );
   assert(
@@ -746,8 +788,8 @@ async function testCase9ShadcnUiPass(tarballPath: string): Promise<TestCaseResul
       errors,
     );
     assert(
-      componentsJson.includes("src/styles/global.css"),
-      "components.json should point CSS at src/styles/global.css",
+      componentsJson.includes("src/styles/globals.css"),
+      "components.json should point CSS at src/styles/globals.css",
       errors,
     );
   }
@@ -780,6 +822,292 @@ async function testCase9ShadcnUiPass(tarballPath: string): Promise<TestCaseResul
     );
     assert(!("radix-ui" in deps), "package.json should NOT include radix-ui", errors);
     assert(!("next-themes" in deps), "package.json should NOT include next-themes", errors);
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase10NextShadcnUiPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 10: next-v16 + shadcn-ui (overlay family: next)";
+  const errors: string[] = [];
+  const appName = "e2e-next-shadcn-ui";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "next-v16", "-w", "shadcn-ui", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/button.tsx")),
+    "shadcn-ui should copy button for next-v16",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/app/globals.css")),
+    "shadcn-ui next overlay should overwrite src/app/globals.css",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "components.json")),
+    "shadcn-ui next overlay should copy components.json",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "postcss.config.mjs")),
+    "shadcn-ui next overlay should copy postcss.config.mjs",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/lib/utils/index.ts")),
+    "shadcn-ui next overlay should provide lib/utils/index.ts",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "components.json"))) {
+    const componentsJson = fs.readFileSync(path.join(appDir, "components.json"), "utf-8");
+    assert(
+      componentsJson.includes('"rsc": true'),
+      "next components.json should enable rsc",
+      errors,
+    );
+    assert(
+      componentsJson.includes("src/app/globals.css"),
+      "next components.json should point CSS at src/app/globals.css",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = JSON.parse(fs.readFileSync(path.join(appDir, "package.json"), "utf-8")) as {
+      dependencies?: Record<string, string>;
+    };
+    const deps = pkg.dependencies ?? {};
+    assert("shadcn" in deps, "package.json should include shadcn", errors);
+    assert(
+      "@tailwindcss/postcss" in deps,
+      "next overlay should add @tailwindcss/postcss",
+      errors,
+    );
+    assert(
+      !("@tailwindcss/vite" in deps),
+      "next overlay should NOT add @tailwindcss/vite",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 11: next-v16 + antd (overlay family: next)";
+  const errors: string[] = [];
+  const appName = "e2e-next-antd";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "next-v16", "-w", "antd", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/app/antd-theme-provider.tsx")),
+    "antd next overlay should copy antd-theme-provider.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/configs/theme.ts")),
+    "antd next overlay should copy theme.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/button.tsx")),
+    "antd should copy shared button for next-v16",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/app/antd-theme-provider.tsx"))) {
+    const provider = fs.readFileSync(path.join(appDir, "src/app/antd-theme-provider.tsx"), "utf-8");
+    assert(
+      provider.includes('"use client"'),
+      "Next AntdThemeProvider must be a client component",
+      errors,
+    );
+    assert(
+      !provider.includes('@ant-design/nextjs-registry') &&
+        !provider.includes("from \"@ant-design/nextjs-registry\""),
+      "AntdThemeProvider must not import AntdRegistry",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/app/layout.tsx"))) {
+    const rootLayout = fs.readFileSync(path.join(appDir, "src/app/layout.tsx"), "utf-8");
+    assert(
+      rootLayout.includes('@ant-design/nextjs-registry'),
+      "root layout should import AntdRegistry",
+      errors,
+    );
+    assert(
+      rootLayout.includes("<AntdRegistry>{children}</AntdRegistry>"),
+      "root layout should wrap children with AntdRegistry",
+      errors,
+    );
+    assert(
+      !rootLayout.includes("AntdThemeProvider"),
+      "root layout should NOT mount AntdThemeProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/app/[locale]/layout.tsx"))) {
+    const localeLayout = fs.readFileSync(
+      path.join(appDir, "src/app/[locale]/layout.tsx"),
+      "utf-8",
+    );
+    assert(
+      localeLayout.includes('from "@/app/antd-theme-provider"'),
+      "locale layout should import AntdThemeProvider",
+      errors,
+    );
+    assert(
+      localeLayout.includes("<AntdThemeProvider>{children}</AntdThemeProvider>"),
+      "locale layout should wrap children with AntdThemeProvider",
+      errors,
+    );
+    assert(
+      localeLayout.includes("NextIntlClientProvider"),
+      "locale layout should keep NextIntlClientProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = JSON.parse(fs.readFileSync(path.join(appDir, "package.json"), "utf-8")) as {
+      dependencies?: Record<string, string>;
+    };
+    const deps = pkg.dependencies ?? {};
+    assert("antd" in deps, "package.json should include antd", errors);
+    assert(
+      "@ant-design/nextjs-registry" in deps,
+      "next overlay should add @ant-design/nextjs-registry",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 12: next-v16 + mui (overlay family: next)";
+  const errors: string[] = [];
+  const appName = "e2e-next-mui";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "next-v16", "-w", "mui", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/app/mui-theme-provider.tsx")),
+    "mui next overlay should copy mui-theme-provider.tsx",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/configs/theme.ts")),
+    "mui next overlay should copy theme.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/components/ui/button.tsx")),
+    "mui should copy shared button for next-v16",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/material-ui-nextjs/SKILL.md")),
+    "mui next scaffold should include material-ui-nextjs skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/material-ui-theming/AGENTS.md")),
+    "mui next scaffold should include material-ui-theming AGENTS.md",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/app/mui-theme-provider.tsx"))) {
+    const provider = fs.readFileSync(path.join(appDir, "src/app/mui-theme-provider.tsx"), "utf-8");
+    assert(
+      provider.includes('"use client"'),
+      "Next MuiThemeProvider must be a client component",
+      errors,
+    );
+    assert(
+      !provider.includes("@mui/material-nextjs"),
+      "MuiThemeProvider must not import AppRouterCacheProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/app/layout.tsx"))) {
+    const rootLayout = fs.readFileSync(path.join(appDir, "src/app/layout.tsx"), "utf-8");
+    assert(
+      rootLayout.includes("@mui/material-nextjs/v16-appRouter"),
+      "root layout should import AppRouterCacheProvider from v16-appRouter",
+      errors,
+    );
+    assert(
+      rootLayout.includes("<AppRouterCacheProvider>{children}</AppRouterCacheProvider>"),
+      "root layout should wrap children with AppRouterCacheProvider",
+      errors,
+    );
+    assert(
+      !rootLayout.includes("MuiThemeProvider"),
+      "root layout should NOT mount MuiThemeProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "src/app/[locale]/layout.tsx"))) {
+    const localeLayout = fs.readFileSync(
+      path.join(appDir, "src/app/[locale]/layout.tsx"),
+      "utf-8",
+    );
+    assert(
+      localeLayout.includes('from "@/app/mui-theme-provider"'),
+      "locale layout should import MuiThemeProvider",
+      errors,
+    );
+    assert(
+      localeLayout.includes("<MuiThemeProvider>{children}</MuiThemeProvider>"),
+      "locale layout should wrap children with MuiThemeProvider",
+      errors,
+    );
+    assert(
+      localeLayout.includes("NextIntlClientProvider"),
+      "locale layout should keep NextIntlClientProvider",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = JSON.parse(fs.readFileSync(path.join(appDir, "package.json"), "utf-8")) as {
+      dependencies?: Record<string, string>;
+    };
+    const deps = pkg.dependencies ?? {};
+    assert("@mui/material" in deps, "package.json should include @mui/material", errors);
+    assert(
+      "@mui/material-nextjs" in deps,
+      "next overlay should add @mui/material-nextjs",
+      errors,
+    );
+    assert("@emotion/cache" in deps, "next overlay should add @emotion/cache", errors);
   }
 
   return { name, passed: errors.length === 0, errors };
@@ -858,6 +1186,9 @@ async function main(): Promise<void> {
     results.push(await testCase7AntdPass(tarballPath));
     results.push(await testCase8MuiPass(tarballPath));
     results.push(await testCase9ShadcnUiPass(tarballPath));
+    results.push(await testCase10NextShadcnUiPass(tarballPath));
+    results.push(await testCase11NextAntdPass(tarballPath));
+    results.push(await testCase12NextMuiPass(tarballPath));
 
     printReport(results);
 

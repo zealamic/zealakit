@@ -71,6 +71,15 @@ export const recipes: Record<string, RecipeConfig> = {
     packages: {},
     devDependencies: {},
     scripts: {},
+    fileTransforms: {
+      "vite-react": [
+        {
+          file: "src/main.tsx",
+          pattern: /import App from "\.\/app";/,
+          replacement: 'import App from "./app";\nimport "./configs/i18n";',
+        },
+      ],
+    },
   },
   "hookform-zod": {
     id: "hookform-zod",
@@ -119,6 +128,11 @@ export const recipes: Record<string, RecipeConfig> = {
     packages: {
       antd: "^6.6.3",
     },
+    overlayPackages: {
+      next: {
+        "@ant-design/nextjs-registry": "^1.3.0",
+      },
+    },
     devDependencies: {},
     scripts: {},
     fileTransforms: {
@@ -135,6 +149,31 @@ export const recipes: Record<string, RecipeConfig> = {
           replacement: "<AntdThemeProvider><App /></AntdThemeProvider>",
         },
       ],
+      next: [
+        {
+          file: "src/app/layout.tsx",
+          pattern: /import "\.\/globals\.css";/,
+          replacement:
+            'import { AntdRegistry } from "@ant-design/nextjs-registry";\nimport "./globals.css";',
+        },
+        {
+          file: "src/app/layout.tsx",
+          pattern: /<body>\{children\}<\/body>/,
+          replacement: "<body><AntdRegistry>{children}</AntdRegistry></body>",
+        },
+        {
+          file: "src/app/[locale]/layout.tsx",
+          pattern: /import \{ hasLocale, NextIntlClientProvider \} from "next-intl";/,
+          replacement:
+            'import { hasLocale, NextIntlClientProvider } from "next-intl";\nimport { AntdThemeProvider } from "@/app/antd-theme-provider";',
+        },
+        {
+          file: "src/app/[locale]/layout.tsx",
+          pattern: /return <NextIntlClientProvider>\{children\}<\/NextIntlClientProvider>;/,
+          replacement:
+            "return (\n    <NextIntlClientProvider>\n      <AntdThemeProvider>{children}</AntdThemeProvider>\n    </NextIntlClientProvider>\n  );",
+        },
+      ],
     },
   },
   mui: {
@@ -147,6 +186,13 @@ export const recipes: Record<string, RecipeConfig> = {
       "@mui/material": "^9.4.0",
       "@emotion/react": "^11.14.0",
       "@emotion/styled": "^11.14.0",
+    },
+    overlayPackages: {
+      next: {
+        "@mui/material-nextjs": "^9.4.0",
+        "@emotion/cache": "^11.14.0",
+        "@emotion/server": "^11.11.0",
+      },
     },
     devDependencies: {},
     scripts: {},
@@ -162,6 +208,32 @@ export const recipes: Record<string, RecipeConfig> = {
           file: "src/main.tsx",
           pattern: /<App \/>/g,
           replacement: "<MuiThemeProvider><App /></MuiThemeProvider>",
+        },
+      ],
+      next: [
+        {
+          file: "src/app/layout.tsx",
+          pattern: /import "\.\/globals\.css";/,
+          replacement:
+            'import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";\nimport "./globals.css";',
+        },
+        {
+          file: "src/app/layout.tsx",
+          pattern: /<body>\{children\}<\/body>/,
+          replacement:
+            "<body><AppRouterCacheProvider>{children}</AppRouterCacheProvider></body>",
+        },
+        {
+          file: "src/app/[locale]/layout.tsx",
+          pattern: /import \{ hasLocale, NextIntlClientProvider \} from "next-intl";/,
+          replacement:
+            'import { hasLocale, NextIntlClientProvider } from "next-intl";\nimport { MuiThemeProvider } from "@/app/mui-theme-provider";',
+        },
+        {
+          file: "src/app/[locale]/layout.tsx",
+          pattern: /return <NextIntlClientProvider>\{children\}<\/NextIntlClientProvider>;/,
+          replacement:
+            "return (\n    <NextIntlClientProvider>\n      <MuiThemeProvider>{children}</MuiThemeProvider>\n    </NextIntlClientProvider>\n  );",
         },
       ],
     },
@@ -180,8 +252,15 @@ export const recipes: Record<string, RecipeConfig> = {
       "class-variance-authority": "^0.7.1",
       "lucide-react": "^1.43.0",
       tailwindcss: "^4.3.3",
-      "@tailwindcss/vite": "^4.3.3",
       "tw-animate-css": "^1.4.0",
+    },
+    overlayPackages: {
+      "vite-react": {
+        "@tailwindcss/vite": "^4.3.3",
+      },
+      next: {
+        "@tailwindcss/postcss": "^4.3.3",
+      },
     },
     devDependencies: {},
     scripts: {},

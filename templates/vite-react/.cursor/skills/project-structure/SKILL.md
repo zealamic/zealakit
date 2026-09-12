@@ -62,7 +62,7 @@ src/
 │   ├── constants/           # Routes, endpoints, locale codes, storage keys
 │   └── utils/               # Pure helpers
 ├── hooks/                   # Rare shared hooks only (from client-shared-pieces recipe)
-├── configs/                 # App bootstrap config (not business features)
+├── configs/                 # App bootstrap (i18n from client-shared-pieces vite-react overlay)
 ├── assets/
 │   └── locales/<lang>/      # Copy namespaces (same filenames per language)
 └── styles/                  # Global styles / tokens
@@ -72,7 +72,8 @@ Folders added by recipes (same **role**, library may vary):
 
 | Folder | Role | Example libraries |
 | --- | --- | --- |
-| `src/hooks/`, `src/layouts/`, `src/lib/` | Shared client kernel (default recipe) | — |
+| `src/hooks/`, `src/layouts/`, `src/lib/` | Shared client kernel (default recipe `shared/`) | — |
+| `src/configs/i18n.ts` | Client bootstrap (default recipe `overlays/vite-react`) | — |
 | `src/stores/` | Client / session UI state (not server cache) | Zustand, Nanostores, … |
 | `src/lib/schemas/` | Validation schemas for forms / payloads | Zod, Valibot, … |
 | `src/lib/fetcher/` | Shared HTTP client instance + interceptors | Ky, Axios, … |

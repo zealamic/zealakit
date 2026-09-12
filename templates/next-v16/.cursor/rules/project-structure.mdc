@@ -1,0 +1,18 @@
+---
+description: App Router layout, [locale] i18n, and server/client component exports
+alwaysApply: true
+---
+
+# Project structure
+
+Follow `.cursor/skills/project-structure/SKILL.md` when adding pages, placing components, or choosing SSR vs CSR exports.
+
+Hard rules:
+
+- kebab-case **files and folders**; PascalCase **component exports**
+- Document shell in `app/layout.tsx`; locale + `NextIntlClientProvider` in `app/[locale]/layout.tsx`
+- Default public UI in `(site)/`; optional groups: `(entry)` auth, `(console)` app, `(landing)` campaigns
+- Route-group UI in `<group>/_components/`; multi-page dual SSR/CSR UI in `[locale]/_shared/`
+- `server.tsx` / `client.tsx` are export entries only — never import both from a sibling file
+- `template.tsx` is the view; `skeleton.tsx` is loading; CSS modules use `<page>-<component>.module.css`
+- Prefer `type` over `interface`; path alias `@/*` → `src/*`

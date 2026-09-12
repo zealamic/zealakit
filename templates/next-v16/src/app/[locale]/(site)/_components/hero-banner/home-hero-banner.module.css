@@ -1,0 +1,61 @@
+.root {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 42rem;
+  padding: 1.25rem 0 2rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.15;
+}
+
+.description {
+  margin: 0;
+  max-width: 36rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.cta {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 0.25rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+  border-radius: 0.5rem;
+}
+
+.skeletonLine {
+  border-radius: 0.4rem;
+  background: color-mix(in oklab, currentColor 10%, transparent);
+}
+
+.skeletonEyebrow {
+  width: 8rem;
+  height: 0.75rem;
+}
+
+.skeletonTitle {
+  width: min(100%, 28rem);
+  height: 2rem;
+}
+
+.skeletonDescription {
+  width: min(100%, 34rem);
+  height: 3rem;
+}
+
+.skeletonCta {
+  width: 7rem;
+  height: 2.4rem;
+}
