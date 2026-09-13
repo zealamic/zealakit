@@ -3,7 +3,7 @@ name: project-structure
 description: >-
   Defines Next.js App Router folder layout, [locale] routing, server/client
   component export rules, shared widgets, handlers, and naming for this
-  next-v16 template. Use when adding pages, placing components, choosing
+  next template. Use when adding pages, placing components, choosing
   server.tsx vs client.tsx, wiring i18n, or answering “where does this belong?”.
 ---
 

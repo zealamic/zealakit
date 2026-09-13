@@ -154,8 +154,7 @@ function insertAgentEntry(filePath: string, entry: string): void {
 function applyRecipeFileTransforms(recipeId: string, templateId: string, targetDir: string): void {
   const recipe = getRecipe(recipeId);
   const overlayId = getTemplateOverlayId(templateId);
-  const transforms =
-    recipe?.fileTransforms?.[templateId] ?? recipe?.fileTransforms?.[overlayId];
+  const transforms = recipe?.fileTransforms?.[templateId] ?? recipe?.fileTransforms?.[overlayId];
   if (!transforms?.length) {
     return;
   }

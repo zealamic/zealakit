@@ -147,7 +147,7 @@ function verifyTarballContents(tarballPath: string): void {
     "package/recipes/shadcn-ui/overlays/next/components.json",
     "package/recipes/shadcn-ui/shared/src/components/ui/index.ts",
     "package/recipes/shadcn-ui/overlays/vite-react/components.json",
-    "package/templates/next-v16/package.json",
+    "package/templates/next/package.json",
   ];
 
   for (const prefix of requiredPrefixes) {
@@ -828,21 +828,21 @@ async function testCase9ShadcnUiPass(tarballPath: string): Promise<TestCaseResul
 }
 
 async function testCase10NextShadcnUiPass(tarballPath: string): Promise<TestCaseResult> {
-  const name = "Test 10: next-v16 + shadcn-ui (overlay family: next)";
+  const name = "Test 10: next + shadcn-ui (overlay family: next)";
   const errors: string[] = [];
   const appName = "e2e-next-shadcn-ui";
   const appDir = path.join(E2E_WORK_DIR, appName);
 
   const result = await runNpxTarball(
     tarballPath,
-    [appName, "-t", "next-v16", "-w", "shadcn-ui", "-y"],
+    [appName, "-t", "next", "-w", "shadcn-ui", "-y"],
     E2E_WORK_DIR,
   );
 
   assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
   assert(
     pathExists(path.join(appDir, "src/components/ui/button.tsx")),
-    "shadcn-ui should copy button for next-v16",
+    "shadcn-ui should copy button for next",
     errors,
   );
   assert(
@@ -886,30 +886,22 @@ async function testCase10NextShadcnUiPass(tarballPath: string): Promise<TestCase
     };
     const deps = pkg.dependencies ?? {};
     assert("shadcn" in deps, "package.json should include shadcn", errors);
-    assert(
-      "@tailwindcss/postcss" in deps,
-      "next overlay should add @tailwindcss/postcss",
-      errors,
-    );
-    assert(
-      !("@tailwindcss/vite" in deps),
-      "next overlay should NOT add @tailwindcss/vite",
-      errors,
-    );
+    assert("@tailwindcss/postcss" in deps, "next overlay should add @tailwindcss/postcss", errors);
+    assert(!("@tailwindcss/vite" in deps), "next overlay should NOT add @tailwindcss/vite", errors);
   }
 
   return { name, passed: errors.length === 0, errors };
 }
 
 async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResult> {
-  const name = "Test 11: next-v16 + antd (overlay family: next)";
+  const name = "Test 11: next + antd (overlay family: next)";
   const errors: string[] = [];
   const appName = "e2e-next-antd";
   const appDir = path.join(E2E_WORK_DIR, appName);
 
   const result = await runNpxTarball(
     tarballPath,
-    [appName, "-t", "next-v16", "-w", "antd", "-y"],
+    [appName, "-t", "next", "-w", "antd", "-y"],
     E2E_WORK_DIR,
   );
 
@@ -926,7 +918,7 @@ async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResu
   );
   assert(
     pathExists(path.join(appDir, "src/components/ui/button.tsx")),
-    "antd should copy shared button for next-v16",
+    "antd should copy shared button for next",
     errors,
   );
 
@@ -938,8 +930,8 @@ async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResu
       errors,
     );
     assert(
-      !provider.includes('@ant-design/nextjs-registry') &&
-        !provider.includes("from \"@ant-design/nextjs-registry\""),
+      !provider.includes("@ant-design/nextjs-registry") &&
+        !provider.includes('from "@ant-design/nextjs-registry"'),
       "AntdThemeProvider must not import AntdRegistry",
       errors,
     );
@@ -948,7 +940,7 @@ async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResu
   if (pathExists(path.join(appDir, "src/app/layout.tsx"))) {
     const rootLayout = fs.readFileSync(path.join(appDir, "src/app/layout.tsx"), "utf-8");
     assert(
-      rootLayout.includes('@ant-design/nextjs-registry'),
+      rootLayout.includes("@ant-design/nextjs-registry"),
       "root layout should import AntdRegistry",
       errors,
     );
@@ -965,10 +957,7 @@ async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResu
   }
 
   if (pathExists(path.join(appDir, "src/app/[locale]/layout.tsx"))) {
-    const localeLayout = fs.readFileSync(
-      path.join(appDir, "src/app/[locale]/layout.tsx"),
-      "utf-8",
-    );
+    const localeLayout = fs.readFileSync(path.join(appDir, "src/app/[locale]/layout.tsx"), "utf-8");
     assert(
       localeLayout.includes('from "@/app/antd-theme-provider"'),
       "locale layout should import AntdThemeProvider",
@@ -1003,14 +992,14 @@ async function testCase11NextAntdPass(tarballPath: string): Promise<TestCaseResu
 }
 
 async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResult> {
-  const name = "Test 12: next-v16 + mui (overlay family: next)";
+  const name = "Test 12: next + mui (overlay family: next)";
   const errors: string[] = [];
   const appName = "e2e-next-mui";
   const appDir = path.join(E2E_WORK_DIR, appName);
 
   const result = await runNpxTarball(
     tarballPath,
-    [appName, "-t", "next-v16", "-w", "mui", "-y"],
+    [appName, "-t", "next", "-w", "mui", "-y"],
     E2E_WORK_DIR,
   );
 
@@ -1027,7 +1016,7 @@ async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResul
   );
   assert(
     pathExists(path.join(appDir, "src/components/ui/button.tsx")),
-    "mui should copy shared button for next-v16",
+    "mui should copy shared button for next",
     errors,
   );
   assert(
@@ -1075,10 +1064,7 @@ async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResul
   }
 
   if (pathExists(path.join(appDir, "src/app/[locale]/layout.tsx"))) {
-    const localeLayout = fs.readFileSync(
-      path.join(appDir, "src/app/[locale]/layout.tsx"),
-      "utf-8",
-    );
+    const localeLayout = fs.readFileSync(path.join(appDir, "src/app/[locale]/layout.tsx"), "utf-8");
     assert(
       localeLayout.includes('from "@/app/mui-theme-provider"'),
       "locale layout should import MuiThemeProvider",
@@ -1102,11 +1088,7 @@ async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResul
     };
     const deps = pkg.dependencies ?? {};
     assert("@mui/material" in deps, "package.json should include @mui/material", errors);
-    assert(
-      "@mui/material-nextjs" in deps,
-      "next overlay should add @mui/material-nextjs",
-      errors,
-    );
+    assert("@mui/material-nextjs" in deps, "next overlay should add @mui/material-nextjs", errors);
     assert("@emotion/cache" in deps, "next overlay should add @emotion/cache", errors);
   }
 

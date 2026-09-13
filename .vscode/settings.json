@@ -1,3 +1,4 @@
 {
-  "biome.lsp.bin": "./node_modules/@biomejs/biome/bin/biome"
+  "biome.lsp.bin": "./node_modules/@biomejs/biome/bin/biome",
+  "cSpell.words": ["pico", "scaffolder", "Zealakit"]
 }

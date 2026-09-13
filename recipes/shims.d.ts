@@ -140,21 +140,9 @@ declare module "react/jsx-runtime" {
     type Element = unknown;
     type IntrinsicElements = Record<string, unknown>;
   }
-  export function jsx(
-    type: unknown,
-    props: unknown,
-    key?: unknown,
-  ): JSX.Element;
-  export function jsxs(
-    type: unknown,
-    props: unknown,
-    key?: unknown,
-  ): JSX.Element;
-  export function jsxDEV(
-    type: unknown,
-    props: unknown,
-    key?: unknown,
-  ): JSX.Element;
+  export function jsx(type: unknown, props: unknown, key?: unknown): JSX.Element;
+  export function jsxs(type: unknown, props: unknown, key?: unknown): JSX.Element;
+  export function jsxDEV(type: unknown, props: unknown, key?: unknown): JSX.Element;
   export const Fragment: unknown;
 }
 

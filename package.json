@@ -20,8 +20,9 @@
     "check:write": "biome check --write .",
     "format": "biome format --write .",
     "test:pack": "tsx scripts/test-e2e-pack.ts",
+    "monitor": "tsx monitor/server.ts",
     "prepublishOnly": "npm run build",
-    "create:test": "npx tsx src/index.ts"
+    "test:sandbox": "rm -rf .sandbox && mkdir -p .sandbox && cd .sandbox && tsx ../src/index.ts"
   },
   "engines": {
     "node": ">=18"
@@ -37,15 +38,15 @@
   "dependencies": {
     "@clack/prompts": "^1.8.0",
     "commander": "^15.0.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.4.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.13",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^26.5.1",
-    "tsup": "^8.5.0",
-    "tsx": "^4.20.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
 }

@@ -8,14 +8,12 @@ export const templates: Record<string, TemplateConfig> = {
     description: "Minimal Vite + React + TypeScript starter",
     path: "vite-react",
   },
-  "next-v16": {
-    id: "next-v16",
-    name: "Next.js 16",
+  next: {
+    id: "next",
+    name: "Next.js",
     scope: "hybrid",
     description: "Next.js App Router + TypeScript starter",
-    path: "next-v16",
-    // Shared with future next-v17 / next-v18 templates
-    overlay: "next",
+    path: "next",
   },
 };
 

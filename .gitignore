@@ -10,3 +10,7 @@ README_TEMP.md
 /templates/**/pnpm-lock.yaml
 /templates/**/pnpm-workspace.yaml
 /templates/**/bun.lockb
+
+# Test scaffolding output
+/.sandbox/
+/.temp/

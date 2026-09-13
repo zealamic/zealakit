@@ -9,12 +9,12 @@ export const recipes: Record<string, RecipeConfig> = {
     exclusive: true,
     packages: {},
     devDependencies: {
-      eslint: "^9.28.0",
-      "@eslint/js": "^9.28.0",
-      "typescript-eslint": "^8.33.1",
-      "eslint-plugin-react-hooks": "^5.2.0",
-      "eslint-plugin-react-refresh": "^0.4.20",
-      globals: "^16.2.0",
+      eslint: "^10.10.0",
+      "@eslint/js": "^10.0.1",
+      "typescript-eslint": "^8.70.0",
+      "eslint-plugin-react-hooks": "^7.1.1",
+      "eslint-plugin-react-refresh": "^0.5.6",
+      globals: "^17.12.0",
     },
     scripts: {
       lint: "eslint .",
@@ -29,7 +29,7 @@ export const recipes: Record<string, RecipeConfig> = {
     exclusive: true,
     packages: {},
     devDependencies: {
-      "@biomejs/biome": "^2.5.11",
+      "@biomejs/biome": "^2.5.13",
     },
     scripts: {
       check: "biome check .",
@@ -56,8 +56,8 @@ export const recipes: Record<string, RecipeConfig> = {
     supportedScopes: ["client", "hybrid"],
     exclusive: true,
     packages: {
-      nanostores: "^1.5.2",
-      "@nanostores/react": "^1.0.0",
+      nanostores: "^1.5.3",
+      "@nanostores/react": "^2.0.1",
     },
     devDependencies: {},
     scripts: {},
@@ -88,9 +88,9 @@ export const recipes: Record<string, RecipeConfig> = {
     supportedScopes: ["client", "hybrid"],
     exclusive: true,
     packages: {
-      "react-hook-form": "^7.87.0",
+      "react-hook-form": "^7.88.0",
       "@hookform/resolvers": "^5.9.1",
-      zod: "^4.5.4",
+      zod: "^4.6.4",
     },
     devDependencies: {},
     scripts: {},
@@ -185,7 +185,7 @@ export const recipes: Record<string, RecipeConfig> = {
     packages: {
       "@mui/material": "^9.4.0",
       "@emotion/react": "^11.14.0",
-      "@emotion/styled": "^11.14.0",
+      "@emotion/styled": "^11.14.1",
     },
     overlayPackages: {
       next: {
@@ -220,8 +220,7 @@ export const recipes: Record<string, RecipeConfig> = {
         {
           file: "src/app/layout.tsx",
           pattern: /<body>\{children\}<\/body>/,
-          replacement:
-            "<body><AppRouterCacheProvider>{children}</AppRouterCacheProvider></body>",
+          replacement: "<body><AppRouterCacheProvider>{children}</AppRouterCacheProvider></body>",
         },
         {
           file: "src/app/[locale]/layout.tsx",
@@ -248,9 +247,9 @@ export const recipes: Record<string, RecipeConfig> = {
       shadcn: "^4.21.0",
       "@base-ui/react": "^1.8.0",
       "@fontsource-variable/inter": "^5.3.0",
-      cn: "^0.2.6",
+      cn: "^0.3.0",
       "class-variance-authority": "^0.7.1",
-      "lucide-react": "^1.43.0",
+      "lucide-react": "^1.45.0",
       tailwindcss: "^4.3.3",
       "tw-animate-css": "^1.4.0",
     },

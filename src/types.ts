@@ -1,4 +1,6 @@
-export type Scope = "client" | "server" | "hybrid" | "infrastructure";
+import type { RECIPE_CATEGORIES, SCOPES } from "./constants.js";
+
+export type Scope = (typeof SCOPES)[number];
 
 export interface TemplateConfig {
   id: string;
@@ -8,20 +10,13 @@ export interface TemplateConfig {
   path: string;
   /**
    * Recipe overlay folder under `recipes/<id>/overlays/`.
-   * Defaults to `id`. Use a stable family id (e.g. `next`) so next-v16/v17 share overlays.
+   * Defaults to `id`. Use a stable family id (e.g. `next`) when multiple
+   * template versions should share the same recipe overlays.
    */
   overlay?: string;
 }
 
-export type RecipeCategory =
-  | "linter"
-  | "state"
-  | "ui"
-  | "form"
-  | "fetcher"
-  | "orm"
-  | "infrastructure"
-  | "utils";
+export type RecipeCategory = (typeof RECIPE_CATEGORIES)[number];
 
 export type RecipeFileTransform = {
   file: string;
