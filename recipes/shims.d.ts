@@ -223,3 +223,49 @@ declare module "@vitejs/plugin-react" {
 declare module "vite" {
   export function defineConfig(config: unknown): unknown;
 }
+
+/** Minimal Storybook types for recipe overlays (deps installed only in generated apps). */
+type StorybookFrameworkConfig = {
+  name: string;
+  options?: Record<string, unknown>;
+};
+
+type StorybookConfigShape = {
+  stories?: string | string[];
+  addons?: string[];
+  framework?: string | StorybookFrameworkConfig;
+  staticDirs?: string[];
+};
+
+type StorybookPreviewShape = {
+  parameters?: Record<string, unknown>;
+  decorators?: unknown[];
+};
+
+type StorybookMetaShape<T = unknown> = {
+  title?: string;
+  component?: T;
+  tags?: string[];
+  args?: Record<string, unknown>;
+  parameters?: Record<string, unknown>;
+};
+
+type StorybookStoryShape<TMeta = unknown> = {
+  args?: Record<string, unknown>;
+  render?: (...args: unknown[]) => unknown;
+  parameters?: Record<string, unknown>;
+};
+
+declare module "@storybook/react-vite" {
+  export type StorybookConfig = StorybookConfigShape;
+  export type Preview = StorybookPreviewShape;
+  export type Meta<T = unknown> = StorybookMetaShape<T>;
+  export type StoryObj<TMeta = unknown> = StorybookStoryShape<TMeta>;
+}
+
+declare module "@storybook/nextjs" {
+  export type StorybookConfig = StorybookConfigShape;
+  export type Preview = StorybookPreviewShape;
+  export type Meta<T = unknown> = StorybookMetaShape<T>;
+  export type StoryObj<TMeta = unknown> = StorybookStoryShape<TMeta>;
+}

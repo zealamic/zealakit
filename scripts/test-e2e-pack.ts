@@ -147,6 +147,9 @@ function verifyTarballContents(tarballPath: string): void {
     "package/recipes/shadcn-ui/overlays/next/components.json",
     "package/recipes/shadcn-ui/shared/src/components/ui/index.ts",
     "package/recipes/shadcn-ui/overlays/vite-react/components.json",
+    "package/recipes/storybook/overlays/vite-react/.storybook/main.ts",
+    "package/recipes/storybook/overlays/next/.storybook/main.ts",
+    "package/recipes/storybook/.cursor/skills/storybook/SKILL.md",
     "package/templates/next/package.json",
   ];
 
@@ -1095,6 +1098,67 @@ async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResul
   return { name, passed: errors.length === 0, errors };
 }
 
+async function testCase13StorybookPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 13: storybook (+ mui coexistence)";
+  const errors: string[] = [];
+  const appName = "e2e-storybook";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "vite-react", "-w", "mui,storybook", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, ".storybook/main.ts")),
+    "storybook vite overlay should copy .storybook/main.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/stories/button.stories.tsx")),
+    "storybook should copy example stories",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/storybook/SKILL.md")),
+    "storybook recipe should copy skill",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+    const scripts = (pkg.scripts ?? {}) as Record<string, string>;
+    assert("@mui/material" in deps, "mui should still install alongside storybook", errors);
+    assert("storybook" in devDeps, "package.json should include storybook", errors);
+    assert(
+      devDeps["storybook"] === "^10.6.1",
+      `storybook version should be ^10.6.1, got ${devDeps["storybook"]}`,
+      errors,
+    );
+    assert(
+      "@storybook/react-vite" in devDeps,
+      "vite overlay should add @storybook/react-vite",
+      errors,
+    );
+    assert(scripts.storybook === "storybook dev -p 6006", "should add storybook script", errors);
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/storybook/SKILL.md"),
+      "AGENTS.md should link the storybook skill",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
 function printReport(results: TestCaseResult[]): void {
   log(`\n${"=".repeat(60)}`);
   log("E2E Pack Test Report");
@@ -1171,6 +1235,7 @@ async function main(): Promise<void> {
     results.push(await testCase10NextShadcnUiPass(tarballPath));
     results.push(await testCase11NextAntdPass(tarballPath));
     results.push(await testCase12NextMuiPass(tarballPath));
+    results.push(await testCase13StorybookPass(tarballPath));
 
     printReport(results);
 

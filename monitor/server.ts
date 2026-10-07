@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { RECIPE_CATEGORIES, SCOPES } from "../src/constants.js";
-import { recipes } from "../src/registry/recipes.js";
+import { getRecipeCategories, recipes } from "../src/registry/recipes.js";
 import { templates } from "../src/registry/templates.js";
 import type { RecipeConfig } from "../src/types.js";
 
@@ -36,8 +36,9 @@ type PackageGroup = {
   filePath: string;
   relativePath: string;
   recipeId?: string;
-  /** Template scope or recipe category shown as a fixed-color tag */
+  /** Template scope or recipe categories shown as fixed-color tags */
   tag?: string;
+  tags?: string[];
   tagKind?: "scope" | "category";
   /** False when UI must not mutate this group (unused for now; root uses pnpm install) */
   allowUpdate: boolean;
@@ -263,7 +264,9 @@ async function buildRecipeGroups(): Promise<PackageGroup[]> {
       const idx = (RECIPE_CATEGORIES as readonly string[]).indexOf(category ?? "");
       return idx === -1 ? RECIPE_CATEGORIES.length : idx;
     };
-    const categoryCmp = rank(recipeA?.category) - rank(recipeB?.category);
+    const primaryA = recipeA ? getRecipeCategories(recipeA)[0] : undefined;
+    const primaryB = recipeB ? getRecipeCategories(recipeB)[0] : undefined;
+    const categoryCmp = rank(primaryA) - rank(primaryB);
     if (categoryCmp !== 0) return categoryCmp;
     return a.localeCompare(b);
   });
@@ -272,13 +275,15 @@ async function buildRecipeGroups(): Promise<PackageGroup[]> {
     const recipe = recipes[id];
     if (!recipe) continue;
 
+    const categories = getRecipeCategories(recipe);
     const packages = await collectRecipeEntries(recipe);
     groups.push({
       label: `recipe/${recipe.id}`,
       filePath: RECIPES_REGISTRY,
       relativePath: RECIPES_REGISTRY,
       recipeId: recipe.id,
-      tag: recipe.category,
+      tag: categories[0],
+      tags: categories,
       tagKind: "category",
       allowUpdate: true,
       packages,

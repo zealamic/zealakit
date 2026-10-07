@@ -16,7 +16,7 @@ Use this when adding or changing templates/recipes in the **kit repo**.
 
 1. Create `recipes/<id>/` with `shared/` and/or `overlays/<overlay>/` as needed.
 2. Register in `src/registry/recipes.ts`:
-   - `category` from `RECIPE_CATEGORIES`
+   - `category` from `RECIPE_CATEGORIES` (single value or array for multi-tag recipes)
    - `supportedScopes`, `exclusive` / `default` as appropriate
    - `packages` / `devDependencies` / overlay package maps
    - `fileTransforms` keyed by template id or overlay id

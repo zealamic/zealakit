@@ -1,7 +1,9 @@
 export {
   getAllRecipeIds,
   getRecipe,
+  getRecipeCategories,
   getRecipesByCategory,
+  recipeHasCategory,
   recipes,
   withDefaultRecipes,
 } from "./recipes.js";

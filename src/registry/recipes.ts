@@ -1,4 +1,12 @@
-import type { RecipeConfig, Scope } from "../types.js";
+import type { RecipeCategory, RecipeConfig, Scope } from "../types.js";
+
+export function getRecipeCategories(recipe: RecipeConfig): RecipeCategory[] {
+  return Array.isArray(recipe.category) ? [...recipe.category] : [recipe.category];
+}
+
+export function recipeHasCategory(recipe: RecipeConfig, category: RecipeCategory): boolean {
+  return getRecipeCategories(recipe).includes(category);
+}
 
 export const recipes: Record<string, RecipeConfig> = {
   eslint: {
@@ -9,12 +17,12 @@ export const recipes: Record<string, RecipeConfig> = {
     exclusive: true,
     packages: {},
     devDependencies: {
-      eslint: "^10.10.0",
+      eslint: "^10.12.0",
       "@eslint/js": "^10.0.1",
-      "typescript-eslint": "^8.70.0",
+      "typescript-eslint": "^8.71.1",
       "eslint-plugin-react-hooks": "^7.1.1",
-      "eslint-plugin-react-refresh": "^0.5.6",
-      globals: "^17.12.0",
+      "eslint-plugin-react-refresh": "^0.5.7",
+      globals: "^17.13.0",
     },
     scripts: {
       lint: "eslint .",
@@ -29,7 +37,7 @@ export const recipes: Record<string, RecipeConfig> = {
     exclusive: true,
     packages: {},
     devDependencies: {
-      "@biomejs/biome": "^2.5.13",
+      "@biomejs/biome": "^2.5.15",
     },
     scripts: {
       check: "biome check .",
@@ -56,7 +64,7 @@ export const recipes: Record<string, RecipeConfig> = {
     supportedScopes: ["client", "hybrid"],
     exclusive: true,
     packages: {
-      nanostores: "^1.5.3",
+      nanostores: "^1.5.5",
       "@nanostores/react": "^2.0.1",
     },
     devDependencies: {},
@@ -88,9 +96,9 @@ export const recipes: Record<string, RecipeConfig> = {
     supportedScopes: ["client", "hybrid"],
     exclusive: true,
     packages: {
-      "react-hook-form": "^7.88.0",
+      "react-hook-form": "^7.89.0",
       "@hookform/resolvers": "^5.9.1",
-      zod: "^4.6.4",
+      zod: "^4.6.5",
     },
     devDependencies: {},
     scripts: {},
@@ -126,7 +134,7 @@ export const recipes: Record<string, RecipeConfig> = {
     supportedScopes: ["client", "hybrid"],
     exclusive: true,
     packages: {
-      antd: "^6.6.3",
+      antd: "^6.6.5",
     },
     overlayPackages: {
       next: {
@@ -244,12 +252,12 @@ export const recipes: Record<string, RecipeConfig> = {
     supportedScopes: ["client", "hybrid"],
     exclusive: true,
     packages: {
-      shadcn: "^4.21.0",
+      shadcn: "^4.21.3",
       "@base-ui/react": "^1.8.0",
       "@fontsource-variable/inter": "^5.3.0",
-      cn: "^0.3.0",
+      cn: "^0.4.0",
       "class-variance-authority": "^0.7.1",
-      "lucide-react": "^1.45.0",
+      "lucide-react": "^1.52.0",
       tailwindcss: "^4.3.3",
       "tw-animate-css": "^1.4.0",
     },
@@ -272,6 +280,29 @@ export const recipes: Record<string, RecipeConfig> = {
       ],
     },
   },
+  storybook: {
+    id: "storybook",
+    name: "Storybook",
+    category: ["ui", "testing", "documentation"],
+    supportedScopes: ["client", "hybrid"],
+    exclusive: false,
+    packages: {},
+    overlayDevDependencies: {
+      "vite-react": {
+        storybook: "^10.6.1",
+        "@storybook/react-vite": "^10.6.1",
+      },
+      next: {
+        storybook: "^10.6.1",
+        "@storybook/nextjs": "^10.6.1",
+      },
+    },
+    devDependencies: {},
+    scripts: {
+      storybook: "storybook dev -p 6006",
+      "build-storybook": "storybook build",
+    },
+  },
 };
 
 export function getRecipe(id: string): RecipeConfig | undefined {
@@ -282,8 +313,8 @@ export function getAllRecipeIds(): string[] {
   return Object.keys(recipes);
 }
 
-export function getRecipesByCategory(category: RecipeConfig["category"]): RecipeConfig[] {
-  return Object.values(recipes).filter((recipe) => recipe.category === category);
+export function getRecipesByCategory(category: RecipeCategory): RecipeConfig[] {
+  return Object.values(recipes).filter((recipe) => recipeHasCategory(recipe, category));
 }
 
 export function isDefaultRecipeSupportedForScope(recipe: RecipeConfig, scope: Scope): boolean {

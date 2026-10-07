@@ -9,4 +9,6 @@ export const RECIPE_CATEGORIES = [
   "orm",
   "infrastructure",
   "utils",
+  "testing",
+  "documentation",
 ] as const;

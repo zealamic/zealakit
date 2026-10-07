@@ -17,7 +17,7 @@ const STATE_RECIPE_HINTS: Partial<Record<string, string>> = {
 
 function getStateRecipeLabel(recipe: RecipeConfig): string {
   if (recipe.id === "zustand") {
-    return "Zustand v5";
+    return "Zustand";
   }
 
   return recipe.name;
@@ -36,7 +36,8 @@ async function promptClientRecipes(): Promise<string[] | null> {
   const stateRecipes = getRecipesByCategory("state");
   const formRecipes = getRecipesByCategory("form");
   const fetcherRecipes = getRecipesByCategory("fetcher");
-  const uiRecipes = getRecipesByCategory("ui");
+  // Exclusive UI kits only — Storybook (multi-category, non-exclusive) is prompted separately.
+  const uiRecipes = getRecipesByCategory("ui").filter((recipe) => recipe.exclusive);
 
   const stateChoice = await select<string>({
     message: "Select state management:",
@@ -147,6 +148,20 @@ async function promptClientRecipes(): Promise<string[] | null> {
   const linterRecipe = mapLinterToRecipe(linterChoice);
   if (linterRecipe) {
     recipeIds.push(linterRecipe);
+  }
+
+  const addStorybook = await confirm({
+    message: "Add Storybook (component docs / UI testing)?",
+    initialValue: false,
+  });
+
+  if (isCancel(addStorybook)) {
+    cancel("Cancelled.");
+    return null;
+  }
+
+  if (addStorybook) {
+    recipeIds.push("storybook");
   }
 
   return recipeIds;

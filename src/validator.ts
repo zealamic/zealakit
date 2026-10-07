@@ -2,7 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { cancel, confirm, isCancel } from "@clack/prompts";
 import pc from "picocolors";
-import { getAllTemplateIds, getRecipe, getTemplate } from "./registry/index.js";
+import {
+  getAllTemplateIds,
+  getRecipe,
+  getRecipeCategories,
+  getTemplate,
+} from "./registry/index.js";
 import type { CliOptions, RecipeConfig, Scope, ValidationResult } from "./types.js";
 
 const NPM_NAME_PATTERN = /^(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)\/)?[a-z0-9-~][a-z0-9-._~]*$/;
@@ -152,50 +157,54 @@ export function validateRecipeConflicts(recipeIds: string[]): ValidationResult {
       continue;
     }
 
-    const existing = categoryMap.get(recipe.category) ?? [];
-    existing.push(recipeId);
-    categoryMap.set(recipe.category, existing);
+    for (const category of getRecipeCategories(recipe)) {
+      const existing = categoryMap.get(category) ?? [];
+      existing.push(recipeId);
+      categoryMap.set(category, existing);
+    }
   }
 
   for (const [category, ids] of categoryMap.entries()) {
-    if (ids.length <= 1) {
+    const uniqueIds = [...new Set(ids)];
+    if (uniqueIds.length <= 1) {
       continue;
     }
 
-    const recipesInCategory = ids
+    const recipesInCategory = uniqueIds
       .map((id) => getRecipe(id))
       .filter((recipe): recipe is RecipeConfig => recipe !== undefined);
 
-    const isExclusive = recipesInCategory.some((recipe) => recipe.exclusive);
-
-    if (!isExclusive) {
+    const exclusiveIds = recipesInCategory.filter((recipe) => recipe.exclusive).map((r) => r.id);
+    if (exclusiveIds.length <= 1) {
+      // Multiple non-exclusive recipes (e.g. Storybook + a UI kit) are allowed.
+      // Conflict only when 2+ exclusive recipes share a category.
       continue;
     }
 
-    const names = ids.map((id) => `'${id}'`).join(" and ");
+    const names = exclusiveIds.map((id) => `'${id}'`).join(" and ");
 
-    if (category === "linter" && ids.length === 2) {
+    if (category === "linter" && exclusiveIds.length === 2) {
       errors.push(
         `✖ Conflict: Cannot select both ${names} in the linter group. Please choose only one.`,
       );
       continue;
     }
 
-    if (category === "state" && ids.length >= 2) {
+    if (category === "state" && exclusiveIds.length >= 2) {
       errors.push(
         `✖ Conflict: Cannot select both ${names} in the state group. Please choose only one.`,
       );
       continue;
     }
 
-    if (category === "fetcher" && ids.length >= 2) {
+    if (category === "fetcher" && exclusiveIds.length >= 2) {
       errors.push(
         `✖ Conflict: Cannot select both ${names} in the fetcher group. Please choose only one.`,
       );
       continue;
     }
 
-    if (category === "ui" && ids.length >= 2) {
+    if (category === "ui" && exclusiveIds.length >= 2) {
       errors.push(
         `✖ Conflict: Cannot select both ${names} in the ui group. Please choose only one.`,
       );

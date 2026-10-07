@@ -78,7 +78,7 @@ Copy order in `copyRecipeFiles`:
 2. `shared/`
 3. `overlays/<overlayId>/` (must exist if `overlays/` is present)
 
-Registry fields (`RecipeConfig`): `packages`, `devDependencies`, `overlayPackages` / `overlayDevDependencies`, `scripts`, `fileTransforms`, `exclusive`, `default`, `supportedScopes`, `category`.
+Registry fields (`RecipeConfig`): `packages`, `devDependencies`, `overlayPackages` / `overlayDevDependencies`, `scripts`, `fileTransforms`, `exclusive`, `default`, `supportedScopes`, `category` (one or many).
 
 `fileTransforms` keys may be template id **or** overlay id. Failed pattern match throws.
 

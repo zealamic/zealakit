@@ -30,10 +30,14 @@ export type RecipeFileTransform = {
 export interface RecipeConfig {
   id: string;
   name: string;
-  category: RecipeCategory;
+  /** One or more categories (e.g. Storybook: ui + testing + documentation) */
+  category: RecipeCategory | RecipeCategory[];
   /** Scopes this recipe supports */
   supportedScopes: Scope[] | "all";
-  /** Only one recipe from this category may be selected */
+  /**
+   * Only one exclusive recipe may be selected per shared category.
+   * Non-exclusive recipes (e.g. Storybook) can sit beside exclusive UI kits.
+   */
   exclusive?: boolean;
   /** Always applied for matching template scopes (not shown in prompts) */
   default?: boolean;

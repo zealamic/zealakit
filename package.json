@@ -36,17 +36,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@clack/prompts": "^1.8.0",
+    "@clack/prompts": "^1.8.1",
     "commander": "^15.0.0",
-    "fs-extra": "^11.4.0",
+    "fs-extra": "^11.4.1",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.13",
+    "@biomejs/biome": "^2.5.15",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^26.5.1",
+    "@types/node": "^26.6.4",
     "tsup": "^8.5.1",
-    "tsx": "^4.23.13",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }
