@@ -269,3 +269,112 @@ declare module "@storybook/nextjs" {
   export type Meta<T = unknown> = StorybookMetaShape<T>;
   export type StoryObj<TMeta = unknown> = StorybookStoryShape<TMeta>;
 }
+
+/** Nest / ORM recipe overlays (deps installed only in generated server apps). */
+declare module "@nestjs/common" {
+  export function Module(metadata?: Record<string, unknown>): ClassDecorator;
+  export function Global(): ClassDecorator;
+  export function Injectable(): ClassDecorator;
+  export function Inject(token?: unknown): ParameterDecorator;
+}
+
+declare module "@nestjs/typeorm" {
+  export type TypeOrmModuleOptions = {
+    type?: string;
+    url?: string;
+    host?: string;
+    port?: number;
+    username?: string;
+    password?: string;
+    database?: string;
+    autoLoadEntities?: boolean;
+    synchronize?: boolean;
+    [key: string]: unknown;
+  };
+
+  export const TypeOrmModule: {
+    forRoot(options?: TypeOrmModuleOptions): unknown;
+    forRootAsync(options?: { useFactory: (...args: unknown[]) => unknown }): unknown;
+    forFeature(entities?: unknown[]): unknown;
+  };
+}
+
+declare module "typeorm" {
+  export type DataSourceOptions = {
+    type?: string;
+    url?: string;
+    host?: string;
+    port?: number;
+    username?: string;
+    password?: string;
+    database?: string;
+    synchronize?: boolean;
+    entities?: string[];
+    [key: string]: unknown;
+  };
+
+  export class DataSource {
+    constructor(options?: DataSourceOptions | unknown);
+  }
+  export function Entity(options?: unknown): ClassDecorator;
+  export function Column(options?: unknown): PropertyDecorator;
+  export function PrimaryColumn(options?: unknown): PropertyDecorator;
+}
+
+declare module "@mikro-orm/nestjs" {
+  export const MikroOrmModule: {
+    forRoot(options?: Record<string, unknown>): unknown;
+    forRootAsync(options?: { useFactory: (...args: unknown[]) => unknown }): unknown;
+    forFeature(entities?: unknown[]): unknown;
+  };
+}
+
+declare module "@mikro-orm/decorators/legacy" {
+  export const ReflectMetadataProvider: unknown;
+  export function Entity(options?: unknown): ClassDecorator;
+  export function Property(options?: unknown): PropertyDecorator;
+  export function PrimaryKey(options?: unknown): PropertyDecorator;
+}
+
+declare module "@mikro-orm/sqlite" {
+  export const SqliteDriver: unknown;
+  export class EntityManager {}
+}
+
+declare module "@mikro-orm/core" {
+  export type EntityRepositoryType = unknown;
+  export class MikroORM {
+    static init(options?: unknown): Promise<MikroORM>;
+  }
+}
+
+declare module "better-sqlite3" {
+  export default class Database {
+    constructor(filename?: string, options?: unknown);
+  }
+}
+
+declare module "drizzle-orm/better-sqlite3" {
+  export function drizzle<TSchema extends Record<string, unknown> = Record<string, unknown>>(
+    client: unknown,
+    options?: { schema?: TSchema },
+  ): { schema?: TSchema } & Record<string, unknown>;
+}
+
+declare module "drizzle-orm/sqlite-core" {
+  type ColumnBuilder = {
+    primaryKey: () => ColumnBuilder;
+    notNull: () => ColumnBuilder;
+  };
+
+  export function sqliteTable(
+    name: string,
+    columns: Record<string, unknown>,
+  ): Record<string, unknown>;
+  export function text(name: string): ColumnBuilder;
+  export function integer(name: string, options?: { mode?: string }): ColumnBuilder;
+}
+
+declare module "drizzle-kit" {
+  export function defineConfig(config: Record<string, unknown>): Record<string, unknown>;
+}

@@ -1,7 +1,7 @@
 {
   "name": "zealakit",
-  "version": "1.0.0",
-  "description": "Recipe-based scaffolding CLI for modern frontend projects",
+  "version": "1.0.0-beta.1",
+  "description": "Recipe-based scaffolding CLI for TypeScript project templates",
   "type": "module",
   "bin": {
     "zealakit": "./dist/index.js"
@@ -30,9 +30,12 @@
   "keywords": [
     "cli",
     "scaffold",
+    "typescript",
     "vite",
     "react",
-    "typescript"
+    "next",
+    "nestjs",
+    "hono"
   ],
   "license": "MIT",
   "dependencies": {

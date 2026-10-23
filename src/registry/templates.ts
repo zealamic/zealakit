@@ -15,6 +15,20 @@ export const templates: Record<string, TemplateConfig> = {
     description: "Next.js App Router + TypeScript starter",
     path: "next",
   },
+  nest: {
+    id: "nest",
+    name: "NestJS",
+    scope: "server",
+    description: "NestJS + TypeScript hexagonal / DDD starter",
+    path: "nest",
+  },
+  hono: {
+    id: "hono",
+    name: "Hono",
+    scope: "server",
+    description: "Hono + TypeScript hexagonal / DDD starter",
+    path: "hono",
+  },
 };
 
 export function getTemplate(id: string): TemplateConfig | undefined {

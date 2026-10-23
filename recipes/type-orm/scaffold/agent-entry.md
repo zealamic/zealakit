@@ -1,0 +1,1 @@
+- **ORM:** [.cursor/skills/type-orm/SKILL.md](.cursor/skills/type-orm/SKILL.md) — TypeORM persistence, entities, repository adapters

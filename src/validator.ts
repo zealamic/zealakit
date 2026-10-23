@@ -211,6 +211,13 @@ export function validateRecipeConflicts(recipeIds: string[]): ValidationResult {
       continue;
     }
 
+    if (category === "orm" && exclusiveIds.length >= 2) {
+      errors.push(
+        `✖ Conflict: Cannot select both ${names} in the orm group. Please choose only one.`,
+      );
+      continue;
+    }
+
     errors.push(
       `✖ Conflict: Cannot select both ${names} in the ${category} group. Please choose only one.`,
     );

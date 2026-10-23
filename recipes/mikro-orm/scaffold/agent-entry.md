@@ -1,0 +1,1 @@
+- **ORM:** [.cursor/skills/mikro-orm/SKILL.md](.cursor/skills/mikro-orm/SKILL.md) — MikroORM persistence, entities, repository adapters

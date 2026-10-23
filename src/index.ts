@@ -15,7 +15,7 @@ const program = new Command();
 
 program
   .name("zealakit")
-  .description("Recipe-based scaffolding CLI for modern frontend projects")
+  .description("Recipe-based scaffolding CLI for TypeScript project templates")
   .version("1.0.0")
   .argument("[project-name]", "Project name (npm naming rules)")
   .option("-t, --template <template>", "Base template (e.g. vite-react)", "vite-react")
@@ -51,7 +51,7 @@ program
       }
 
       const targetDir = await scaffoldProject(config);
-      printSuccess(targetDir, config.projectName);
+      printSuccess(targetDir, config.projectName, config.templateId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(pc.red(`✖ Error: ${message}`));

@@ -20,9 +20,17 @@ export const recipes: Record<string, RecipeConfig> = {
       eslint: "^10.12.0",
       "@eslint/js": "^10.0.1",
       "typescript-eslint": "^8.71.1",
-      "eslint-plugin-react-hooks": "^7.1.1",
-      "eslint-plugin-react-refresh": "^0.5.7",
       globals: "^17.13.0",
+    },
+    overlayDevDependencies: {
+      "vite-react": {
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.5.7",
+      },
+      next: {
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.5.7",
+      },
     },
     scripts: {
       lint: "eslint .",
@@ -301,6 +309,161 @@ export const recipes: Record<string, RecipeConfig> = {
     scripts: {
       storybook: "storybook dev -p 6006",
       "build-storybook": "storybook build",
+    },
+  },
+  "type-orm": {
+    id: "type-orm",
+    name: "TypeORM",
+    category: "orm",
+    supportedScopes: ["server"],
+    exclusive: true,
+    packages: {
+      typeorm: "^1.1.2",
+    },
+    overlayPackages: {
+      nest: {
+        "@nestjs/typeorm": "^12.0.2",
+      },
+    },
+    devDependencies: {},
+    scripts: {},
+    fileTransforms: {
+      nest: [
+        {
+          file: "src/bootstrap/app.module.ts",
+          pattern: /import \{ Module \} from "@nestjs\/common";/,
+          replacement:
+            'import { Module } from "@nestjs/common";\n// Uncomment after configuring a DB driver + env — see .cursor/skills/type-orm/SKILL.md\n// import { TypeormPersistenceModule } from "@/infrastructure/persistence/typeorm/typeorm.module.js";',
+        },
+        {
+          file: "src/bootstrap/app.module.ts",
+          pattern: /imports: \[FeatureAModule, FeatureBModule\],/,
+          replacement:
+            "imports: [\n    // TypeormPersistenceModule,\n    FeatureAModule,\n    FeatureBModule,\n  ],",
+        },
+      ],
+      hono: [
+        {
+          file: "src/bootstrap/container.ts",
+          pattern: /import \{ createFeatureA \} from "\.\/modules\/feature-a\.js";/,
+          replacement:
+            '// Uncomment after configuring a DB driver + env — see .cursor/skills/type-orm/SKILL.md\n// import { createTypeOrmDataSource } from "@/infrastructure/persistence/typeorm/typeorm.data-source.js";\nimport { createFeatureA } from "./modules/feature-a.js";',
+        },
+        {
+          file: "src/bootstrap/container.ts",
+          pattern: /export function createContainer\(\): AppContainer \{\n {2}return \{/,
+          replacement:
+            "export function createContainer(): AppContainer {\n  // void createTypeOrmDataSource; // wire into adapters after configuring a driver\n  return {",
+        },
+        {
+          file: "tsconfig.json",
+          pattern: /"isolatedModules": true,/,
+          replacement:
+            '"isolatedModules": true,\n    "experimentalDecorators": true,\n    "emitDecoratorMetadata": true,',
+        },
+      ],
+    },
+  },
+  "mikro-orm": {
+    id: "mikro-orm",
+    name: "MikroORM",
+    category: "orm",
+    supportedScopes: ["server"],
+    exclusive: true,
+    packages: {
+      "@mikro-orm/core": "^7.2.5",
+      "@mikro-orm/decorators": "^7.2.5",
+    },
+    overlayPackages: {
+      nest: {
+        "@mikro-orm/nestjs": "^7.1.0",
+      },
+    },
+    devDependencies: {},
+    scripts: {},
+    fileTransforms: {
+      nest: [
+        {
+          file: "src/bootstrap/app.module.ts",
+          pattern: /import \{ Module \} from "@nestjs\/common";/,
+          replacement:
+            'import { Module } from "@nestjs/common";\n// Uncomment after configuring a DB driver + env — see .cursor/skills/mikro-orm/SKILL.md\n// import { MikroOrmPersistenceModule } from "@/infrastructure/persistence/mikro-orm/mikro-orm.module.js";',
+        },
+        {
+          file: "src/bootstrap/app.module.ts",
+          pattern: /imports: \[FeatureAModule, FeatureBModule\],/,
+          replacement:
+            "imports: [\n    // MikroOrmPersistenceModule,\n    FeatureAModule,\n    FeatureBModule,\n  ],",
+        },
+      ],
+      hono: [
+        {
+          file: "src/bootstrap/container.ts",
+          pattern: /import \{ createFeatureA \} from "\.\/modules\/feature-a\.js";/,
+          replacement:
+            '// Uncomment after configuring a DB driver + env — see .cursor/skills/mikro-orm/SKILL.md\n// import { createMikroOrm } from "@/infrastructure/persistence/mikro-orm/mikro-orm.bootstrap.js";\nimport { createFeatureA } from "./modules/feature-a.js";',
+        },
+        {
+          file: "src/bootstrap/container.ts",
+          pattern: /export function createContainer\(\): AppContainer \{\n {2}return \{/,
+          replacement:
+            "export function createContainer(): AppContainer {\n  // await createMikroOrm(); // wire into adapters after configuring a driver\n  return {",
+        },
+        {
+          file: "tsconfig.json",
+          pattern: /"isolatedModules": true,/,
+          replacement:
+            '"isolatedModules": true,\n    "experimentalDecorators": true,\n    "emitDecoratorMetadata": true,',
+        },
+      ],
+    },
+  },
+  "drizzle-orm": {
+    id: "drizzle-orm",
+    name: "Drizzle ORM",
+    category: "orm",
+    supportedScopes: ["server"],
+    exclusive: true,
+    packages: {
+      "drizzle-orm": "^0.45.4",
+    },
+    devDependencies: {
+      "drizzle-kit": "^0.31.11",
+    },
+    scripts: {
+      "db:generate": "drizzle-kit generate",
+      "db:migrate": "drizzle-kit migrate",
+      "db:studio": "drizzle-kit studio",
+    },
+    fileTransforms: {
+      nest: [
+        {
+          file: "src/bootstrap/app.module.ts",
+          pattern: /import \{ Module \} from "@nestjs\/common";/,
+          replacement:
+            'import { Module } from "@nestjs/common";\n// Uncomment after configuring a DB driver + env — see .cursor/skills/drizzle-orm/SKILL.md\n// import { DrizzlePersistenceModule } from "@/infrastructure/persistence/drizzle/drizzle.module.js";',
+        },
+        {
+          file: "src/bootstrap/app.module.ts",
+          pattern: /imports: \[FeatureAModule, FeatureBModule\],/,
+          replacement:
+            "imports: [\n    // DrizzlePersistenceModule,\n    FeatureAModule,\n    FeatureBModule,\n  ],",
+        },
+      ],
+      hono: [
+        {
+          file: "src/bootstrap/container.ts",
+          pattern: /import \{ createFeatureA \} from "\.\/modules\/feature-a\.js";/,
+          replacement:
+            '// Uncomment after configuring a DB driver + env — see .cursor/skills/drizzle-orm/SKILL.md\n// import { createDrizzleClient } from "@/infrastructure/persistence/drizzle/drizzle.bootstrap.js";\nimport { createFeatureA } from "./modules/feature-a.js";',
+        },
+        {
+          file: "src/bootstrap/container.ts",
+          pattern: /export function createContainer\(\): AppContainer \{\n {2}return \{/,
+          replacement:
+            "export function createContainer(): AppContainer {\n  // createDrizzleClient(); // wire into adapters after configuring a driver\n  return {",
+        },
+      ],
     },
   },
 };

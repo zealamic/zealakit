@@ -10,6 +10,9 @@ README_TEMP.md
 /templates/**/pnpm-lock.yaml
 /templates/**/pnpm-workspace.yaml
 /templates/**/bun.lockb
+/templates/**/dist
+/templates/**/coverage
+/templates/**/*.tsbuildinfo
 
 # Test scaffolding output
 /.sandbox/

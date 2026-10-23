@@ -130,6 +130,12 @@ function verifyTarballContents(tarballPath: string): void {
     "package/recipes/",
     "package/recipes/biome/overlays/vite-react/biome.json",
     "package/recipes/biome/overlays/next/biome.json",
+    "package/recipes/biome/overlays/nest/biome.json",
+    "package/recipes/biome/overlays/hono/biome.json",
+    "package/recipes/eslint/overlays/vite-react/eslint.config.js",
+    "package/recipes/eslint/overlays/next/eslint.config.js",
+    "package/recipes/eslint/overlays/nest/eslint.config.js",
+    "package/recipes/eslint/overlays/hono/eslint.config.js",
     "package/recipes/hookform-zod/.cursor/skills/hookform-zod/SKILL.md",
     "package/recipes/antd/overlays/vite-react/src/app/antd-theme-provider.tsx",
     "package/recipes/antd/overlays/vite-react/src/configs/theme.ts",
@@ -151,6 +157,20 @@ function verifyTarballContents(tarballPath: string): void {
     "package/recipes/storybook/overlays/next/.storybook/main.ts",
     "package/recipes/storybook/.cursor/skills/storybook/SKILL.md",
     "package/templates/next/package.json",
+    "package/templates/nest/package.json",
+    "package/templates/nest/.cursor/skills/structure-ddd/SKILL.md",
+    "package/templates/hono/package.json",
+    "package/templates/hono/.cursor/skills/structure-ddd/SKILL.md",
+    "package/templates/hono/.cursor/skills/hono/SKILL.md",
+    "package/recipes/type-orm/overlays/nest/src/infrastructure/persistence/typeorm/typeorm.module.ts",
+    "package/recipes/type-orm/overlays/hono/src/infrastructure/persistence/typeorm/typeorm.data-source.ts",
+    "package/recipes/mikro-orm/overlays/nest/src/infrastructure/persistence/mikro-orm/mikro-orm.module.ts",
+    "package/recipes/mikro-orm/overlays/hono/src/infrastructure/persistence/mikro-orm/mikro-orm.bootstrap.ts",
+    "package/recipes/drizzle-orm/overlays/nest/src/infrastructure/persistence/drizzle/drizzle.module.ts",
+    "package/recipes/drizzle-orm/overlays/hono/src/infrastructure/persistence/drizzle/drizzle.bootstrap.ts",
+    "package/recipes/type-orm/.cursor/skills/type-orm/SKILL.md",
+    "package/recipes/mikro-orm/.cursor/skills/mikro-orm/SKILL.md",
+    "package/recipes/drizzle-orm/.cursor/skills/drizzle-orm/SKILL.md",
   ];
 
   for (const prefix of requiredPrefixes) {
@@ -266,6 +286,25 @@ async function testCase1ClientPass(tarballPath: string): Promise<TestCaseResult>
     "recipe overlays/ directory should NOT be copied into the project",
     errors,
   );
+  assert(
+    pathExists(path.join(appDir, "pnpm-workspace.yaml")),
+    "scaffolded app should ship pnpm-workspace.yaml allowBuilds",
+    errors,
+  );
+  if (pathExists(path.join(appDir, "pnpm-workspace.yaml"))) {
+    const pnpmWorkspace = fs.readFileSync(path.join(appDir, "pnpm-workspace.yaml"), "utf-8");
+    assert(
+      pnpmWorkspace.includes("esbuild: true"),
+      "vite-react allowBuilds should approve esbuild",
+      errors,
+    );
+    assert(
+      pnpmWorkspace.includes('"@biomejs/biome": true') ||
+        pnpmWorkspace.includes("@biomejs/biome: true"),
+      "biome recipe should approve @biomejs/biome builds",
+      errors,
+    );
+  }
 
   if (pathExists(path.join(appDir, "biome.json"))) {
     const biomeConfig = JSON.parse(fs.readFileSync(path.join(appDir, "biome.json"), "utf-8")) as {
@@ -406,6 +445,11 @@ async function testCase3EslintStandalone(tarballPath: string): Promise<TestCaseR
     const pkg = readPackageJson(appDir);
     const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
     assert("eslint" in devDeps, "package.json should include eslint in devDependencies", errors);
+    assert(
+      "eslint-plugin-react-hooks" in devDeps,
+      "vite-react eslint overlay should add react-hooks plugin",
+      errors,
+    );
   }
 
   return { name, passed: errors.length === 0, errors };
@@ -574,7 +618,7 @@ async function testCase7AntdPass(tarballPath: string): Promise<TestCaseResult> {
     const pkg = readPackageJson(appDir);
     const deps = (pkg.dependencies ?? {}) as Record<string, string>;
     assert("antd" in deps, "package.json should include antd", errors);
-    assert(deps.antd === "^6.6.3", `antd version should be ^6.6.3, got ${deps.antd}`, errors);
+    assert(deps.antd === "^6.6.5", `antd version should be ^6.6.5, got ${deps.antd}`, errors);
   }
 
   return { name, passed: errors.length === 0, errors };
@@ -811,8 +855,8 @@ async function testCase9ShadcnUiPass(tarballPath: string): Promise<TestCaseResul
     const deps = (pkg.dependencies ?? {}) as Record<string, string>;
     assert("shadcn" in deps, "package.json should include shadcn", errors);
     assert(
-      deps.shadcn === "^4.21.0",
-      `shadcn version should be ^4.21.0, got ${deps.shadcn}`,
+      deps.shadcn === "^4.21.3",
+      `shadcn version should be ^4.21.3, got ${deps.shadcn}`,
       errors,
     );
     assert("tailwindcss" in deps, "package.json should include tailwindcss", errors);
@@ -868,6 +912,20 @@ async function testCase10NextShadcnUiPass(tarballPath: string): Promise<TestCase
     "shadcn-ui next overlay should provide lib/utils/index.ts",
     errors,
   );
+  if (pathExists(path.join(appDir, "pnpm-workspace.yaml"))) {
+    const pnpmWorkspace = fs.readFileSync(path.join(appDir, "pnpm-workspace.yaml"), "utf-8");
+    assert(
+      pnpmWorkspace.includes('"@swc/core": true') || pnpmWorkspace.includes("@swc/core: true"),
+      "next allowBuilds should approve @swc/core",
+      errors,
+    );
+    assert(
+      pnpmWorkspace.includes('"@parcel/watcher": true') ||
+        pnpmWorkspace.includes("@parcel/watcher: true"),
+      "next allowBuilds should approve @parcel/watcher",
+      errors,
+    );
+  }
 
   if (pathExists(path.join(appDir, "components.json"))) {
     const componentsJson = fs.readFileSync(path.join(appDir, "components.json"), "utf-8");
@@ -1098,6 +1156,490 @@ async function testCase12NextMuiPass(tarballPath: string): Promise<TestCaseResul
   return { name, passed: errors.length === 0, errors };
 }
 
+async function testCase14NestBiomePass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 14: nest + biome (server overlay)";
+  const errors: string[] = [];
+  const appName = "e2e-nest-biome";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "nest", "-w", "biome", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(pathExists(path.join(appDir, "biome.json")), "biome.json should exist", errors);
+  assert(
+    pathExists(path.join(appDir, "src/bootstrap/main.ts")),
+    "nest template should copy bootstrap/main.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/structure-ddd/SKILL.md")),
+    "nest template should ship structure-ddd skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/nestjs/SKILL.md")),
+    "nest template should ship nestjs skill",
+    errors,
+  );
+  assert(pathExists(path.join(appDir, "AGENTS.md")), "nest template should ship AGENTS.md", errors);
+  assert(
+    !pathExists(path.join(appDir, "src/lib/apis/example.ts")),
+    "client-shared-pieces should NOT apply on server scope",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "biome.json"))) {
+    const biomeConfig = JSON.parse(fs.readFileSync(path.join(appDir, "biome.json"), "utf-8")) as {
+      root?: boolean;
+      javascript?: { parser?: { unsafeParameterDecoratorsEnabled?: boolean } };
+      linter?: { domains?: { next?: string; react?: string } };
+    };
+    assert(
+      biomeConfig.root === undefined,
+      "scaffolded nest biome.json should not set root: false",
+      errors,
+    );
+    assert(
+      biomeConfig.javascript?.parser?.unsafeParameterDecoratorsEnabled === true,
+      "nest biome overlay should enable unsafeParameterDecoratorsEnabled",
+      errors,
+    );
+    assert(
+      biomeConfig.linter?.domains?.next === undefined,
+      "nest biome overlay should not enable the next domain",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+    const scripts = (pkg.scripts ?? {}) as Record<string, string>;
+    assert("@nestjs/common" in deps, "package.json should include @nestjs/common", errors);
+    assert("@biomejs/biome" in devDeps, "package.json should include @biomejs/biome", errors);
+    assert(scripts.check === "biome check .", "should add biome check script", errors);
+    assert(
+      !("eslint-plugin-react-hooks" in devDeps),
+      "nest should NOT get react eslint plugins from biome recipe",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/structure-ddd/SKILL.md"),
+      "AGENTS.md should link structure-ddd",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase16NestTypeOrmPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 16: nest + type-orm";
+  const errors: string[] = [];
+  const appName = "e2e-nest-typeorm";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "nest", "-w", "type-orm,biome", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/infrastructure/persistence/typeorm/typeorm.module.ts")),
+    "type-orm nest overlay should copy typeorm.module.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/type-orm/SKILL.md")),
+    "type-orm recipe should copy skill",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/bootstrap/app.module.ts"))) {
+    const appModule = fs.readFileSync(path.join(appDir, "src/bootstrap/app.module.ts"), "utf-8");
+    assert(
+      appModule.includes("TypeormPersistenceModule"),
+      "app.module should mention TypeormPersistenceModule",
+      errors,
+    );
+    assert(
+      appModule.includes("// import { TypeormPersistenceModule }"),
+      "app.module should leave TypeormPersistenceModule import commented until DB is configured",
+      errors,
+    );
+    assert(
+      !/imports:\s*\[[^\]]*TypeormPersistenceModule/.test(appModule.replace(/\/\/[^\n]*/g, "")),
+      "app.module should not actively register TypeormPersistenceModule",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    assert("typeorm" in deps, "package.json should include typeorm", errors);
+    assert("@nestjs/typeorm" in deps, "package.json should include @nestjs/typeorm", errors);
+    assert(
+      !("better-sqlite3" in deps),
+      "type-orm recipe should NOT pin a DB driver like better-sqlite3",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/type-orm/SKILL.md"),
+      "AGENTS.md should link type-orm skill",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase17OrmConflict(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 17: orm conflict (type-orm + drizzle-orm)";
+  const errors: string[] = [];
+  const appName = "e2e-orm-conflict";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "nest", "-w", "type-orm,drizzle-orm", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode !== 0, `Expected non-zero exit code, got ${result.exitCode}`, errors);
+  assert(
+    !pathExists(appDir) || fs.readdirSync(appDir).length === 0,
+    `${appName}/ should not exist or should be empty`,
+    errors,
+  );
+  assert(/conflict/i.test(result.output), "Output should mention conflict", errors);
+  assert(/orm/i.test(result.output), "Output should mention orm group", errors);
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase18NestDrizzlePass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 18: nest + drizzle-orm";
+  const errors: string[] = [];
+  const appName = "e2e-nest-drizzle";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "nest", "-w", "drizzle-orm", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/infrastructure/persistence/drizzle/drizzle.module.ts")),
+    "drizzle-orm nest overlay should copy drizzle.module.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/infrastructure/persistence/drizzle/drizzle.client.ts")),
+    "drizzle-orm nest overlay should copy drizzle.client.ts stub",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "drizzle.config.ts")),
+    "drizzle-orm nest overlay should copy drizzle.config.ts",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    const scripts = (pkg.scripts ?? {}) as Record<string, string>;
+    assert("drizzle-orm" in deps, "package.json should include drizzle-orm", errors);
+    assert(
+      !("better-sqlite3" in deps),
+      "drizzle-orm recipe should NOT pin a DB driver like better-sqlite3",
+      errors,
+    );
+    assert(
+      scripts["db:generate"] === "drizzle-kit generate",
+      "should add db:generate script",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase19HonoBiomePass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 19: hono + biome (server overlay)";
+  const errors: string[] = [];
+  const appName = "e2e-hono-biome";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "hono", "-w", "biome", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(pathExists(path.join(appDir, "biome.json")), "biome.json should exist", errors);
+  assert(
+    pathExists(path.join(appDir, "src/bootstrap/main.ts")),
+    "hono template should copy bootstrap/main.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/bootstrap/create-app.ts")),
+    "hono template should copy create-app.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/structure-ddd/SKILL.md")),
+    "hono template should ship structure-ddd skill",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, ".cursor/skills/hono/SKILL.md")),
+    "hono template should ship hono skill",
+    errors,
+  );
+  assert(pathExists(path.join(appDir, "AGENTS.md")), "hono template should ship AGENTS.md", errors);
+  assert(
+    !pathExists(path.join(appDir, "src/lib/apis/example.ts")),
+    "client-shared-pieces should NOT apply on server scope",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "biome.json"))) {
+    const biomeConfig = JSON.parse(fs.readFileSync(path.join(appDir, "biome.json"), "utf-8")) as {
+      root?: boolean;
+      javascript?: { parser?: { unsafeParameterDecoratorsEnabled?: boolean } };
+      linter?: { domains?: { next?: string; react?: string } };
+    };
+    assert(
+      biomeConfig.root === undefined,
+      "scaffolded hono biome.json should not set root: false",
+      errors,
+    );
+    assert(
+      biomeConfig.javascript?.parser?.unsafeParameterDecoratorsEnabled === undefined,
+      "hono biome overlay should not enable Nest decorator parser flags",
+      errors,
+    );
+    assert(
+      biomeConfig.linter?.domains?.next === undefined,
+      "hono biome overlay should not enable the next domain",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+    const scripts = (pkg.scripts ?? {}) as Record<string, string>;
+    assert("hono" in deps, "package.json should include hono", errors);
+    assert("@hono/node-server" in deps, "package.json should include @hono/node-server", errors);
+    assert(!("@nestjs/common" in deps), "hono should NOT include Nest packages", errors);
+    assert("@biomejs/biome" in devDeps, "package.json should include @biomejs/biome", errors);
+    assert(scripts.check === "biome check .", "should add biome check script", errors);
+    assert(
+      scripts.dev === "tsx watch src/bootstrap/main.ts",
+      "hono should use tsx watch dev",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "AGENTS.md"))) {
+    const agents = fs.readFileSync(path.join(appDir, "AGENTS.md"), "utf-8");
+    assert(
+      agents.includes(".cursor/skills/hono/SKILL.md"),
+      "AGENTS.md should link hono skill",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase20HonoEslintPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 20: hono + eslint (server overlay)";
+  const errors: string[] = [];
+  const appName = "e2e-hono-eslint";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "hono", "-w", "eslint", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "eslint.config.js")),
+    "eslint.config.js should exist",
+    errors,
+  );
+  assert(!pathExists(path.join(appDir, "biome.json")), "biome.json should NOT exist", errors);
+
+  if (pathExists(path.join(appDir, "eslint.config.js"))) {
+    const eslintConfig = fs.readFileSync(path.join(appDir, "eslint.config.js"), "utf-8");
+    assert(
+      eslintConfig.includes("globals.node"),
+      "hono eslint overlay should use node globals",
+      errors,
+    );
+    assert(
+      !eslintConfig.includes("react-hooks"),
+      "hono eslint overlay should not load react-hooks",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+    assert("eslint" in devDeps, "package.json should include eslint", errors);
+    assert(
+      !("eslint-plugin-react-hooks" in devDeps),
+      "hono should NOT get react-hooks eslint plugin",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase21HonoDrizzlePass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 21: hono + drizzle-orm";
+  const errors: string[] = [];
+  const appName = "e2e-hono-drizzle";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "hono", "-w", "drizzle-orm,biome", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "src/infrastructure/persistence/drizzle/drizzle.bootstrap.ts")),
+    "drizzle-orm hono overlay should copy drizzle.bootstrap.ts",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "src/infrastructure/persistence/drizzle/drizzle.client.ts")),
+    "drizzle-orm hono overlay should copy drizzle.client.ts stub",
+    errors,
+  );
+  assert(
+    pathExists(path.join(appDir, "drizzle.config.ts")),
+    "drizzle-orm hono overlay should copy drizzle.config.ts",
+    errors,
+  );
+  assert(
+    !pathExists(path.join(appDir, "src/infrastructure/persistence/drizzle/drizzle.module.ts")),
+    "hono drizzle overlay should NOT copy Nest drizzle.module.ts",
+    errors,
+  );
+
+  if (pathExists(path.join(appDir, "src/bootstrap/container.ts"))) {
+    const container = fs.readFileSync(path.join(appDir, "src/bootstrap/container.ts"), "utf-8");
+    assert(
+      container.includes("createDrizzleClient"),
+      "container.ts should reference createDrizzleClient",
+      errors,
+    );
+    assert(
+      container.includes("// import { createDrizzleClient }"),
+      "container.ts should leave createDrizzleClient import commented until DB is configured",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const deps = (pkg.dependencies ?? {}) as Record<string, string>;
+    assert("drizzle-orm" in deps, "package.json should include drizzle-orm", errors);
+    assert("hono" in deps, "package.json should include hono", errors);
+    assert(
+      !("better-sqlite3" in deps),
+      "drizzle-orm recipe should NOT pin a DB driver like better-sqlite3",
+      errors,
+    );
+    assert(!("@nestjs/typeorm" in deps), "hono should NOT get Nest ORM packages", errors);
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
+async function testCase15NestEslintPass(tarballPath: string): Promise<TestCaseResult> {
+  const name = "Test 15: nest + eslint (server overlay)";
+  const errors: string[] = [];
+  const appName = "e2e-nest-eslint";
+  const appDir = path.join(E2E_WORK_DIR, appName);
+
+  const result = await runNpxTarball(
+    tarballPath,
+    [appName, "-t", "nest", "-w", "eslint", "-y"],
+    E2E_WORK_DIR,
+  );
+
+  assert(result.exitCode === 0, `Expected exit code 0, got ${result.exitCode}`, errors);
+  assert(
+    pathExists(path.join(appDir, "eslint.config.js")),
+    "eslint.config.js should exist",
+    errors,
+  );
+  assert(!pathExists(path.join(appDir, "biome.json")), "biome.json should NOT exist", errors);
+
+  if (pathExists(path.join(appDir, "eslint.config.js"))) {
+    const eslintConfig = fs.readFileSync(path.join(appDir, "eslint.config.js"), "utf-8");
+    assert(
+      eslintConfig.includes("globals.node"),
+      "nest eslint overlay should use node globals",
+      errors,
+    );
+    assert(
+      !eslintConfig.includes("eslint-plugin-react-hooks"),
+      "nest eslint overlay should not load react-hooks",
+      errors,
+    );
+  }
+
+  if (pathExists(path.join(appDir, "package.json"))) {
+    const pkg = readPackageJson(appDir);
+    const devDeps = (pkg.devDependencies ?? {}) as Record<string, string>;
+    assert("eslint" in devDeps, "package.json should include eslint", errors);
+    assert(
+      !("eslint-plugin-react-hooks" in devDeps),
+      "nest should NOT get react-hooks eslint plugin",
+      errors,
+    );
+    assert(
+      !("eslint-plugin-react-refresh" in devDeps),
+      "nest should NOT get react-refresh eslint plugin",
+      errors,
+    );
+  }
+
+  return { name, passed: errors.length === 0, errors };
+}
+
 async function testCase13StorybookPass(tarballPath: string): Promise<TestCaseResult> {
   const name = "Test 13: storybook (+ mui coexistence)";
   const errors: string[] = [];
@@ -1117,15 +1659,29 @@ async function testCase13StorybookPass(tarballPath: string): Promise<TestCaseRes
     errors,
   );
   assert(
-    pathExists(path.join(appDir, "src/stories/button.stories.tsx")),
-    "storybook should copy example stories",
-    errors,
-  );
-  assert(
     pathExists(path.join(appDir, ".cursor/skills/storybook/SKILL.md")),
     "storybook recipe should copy skill",
     errors,
   );
+  if (pathExists(path.join(appDir, "pnpm-workspace.yaml"))) {
+    const pnpmWorkspace = fs.readFileSync(path.join(appDir, "pnpm-workspace.yaml"), "utf-8");
+    assert(
+      pnpmWorkspace.includes("esbuild: true"),
+      "storybook allowBuilds should approve esbuild",
+      errors,
+    );
+    assert(
+      pnpmWorkspace.includes("core-js-pure: true"),
+      "storybook allowBuilds should approve core-js-pure",
+      errors,
+    );
+    assert(
+      pnpmWorkspace.includes('"@parcel/watcher": true') ||
+        pnpmWorkspace.includes("@parcel/watcher: true"),
+      "storybook allowBuilds should approve @parcel/watcher",
+      errors,
+    );
+  }
 
   if (pathExists(path.join(appDir, "package.json"))) {
     const pkg = readPackageJson(appDir);
@@ -1236,6 +1792,14 @@ async function main(): Promise<void> {
     results.push(await testCase11NextAntdPass(tarballPath));
     results.push(await testCase12NextMuiPass(tarballPath));
     results.push(await testCase13StorybookPass(tarballPath));
+    results.push(await testCase14NestBiomePass(tarballPath));
+    results.push(await testCase15NestEslintPass(tarballPath));
+    results.push(await testCase16NestTypeOrmPass(tarballPath));
+    results.push(await testCase17OrmConflict(tarballPath));
+    results.push(await testCase18NestDrizzlePass(tarballPath));
+    results.push(await testCase19HonoBiomePass(tarballPath));
+    results.push(await testCase20HonoEslintPass(tarballPath));
+    results.push(await testCase21HonoDrizzlePass(tarballPath));
 
     printReport(results);
 

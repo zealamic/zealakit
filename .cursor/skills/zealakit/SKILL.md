@@ -56,7 +56,7 @@ Imports use ESM `.js` extensions in TypeScript source (`from "./types.js"`).
 - Registered in `src/registry/templates.ts` (`id`, `name`, `scope`, `path`, optional `overlay`).
 - Folder: `templates/<path>/` (usually `path === id`).
 - `overlay` defaults to `id` via `getTemplateOverlayId()` — recipe overlay folder under `recipes/*/overlays/<overlay>/`.
-- Current templates: `vite-react` (`client`), `next` (`hybrid`, overlay id `next`).
+- Current templates: `vite-react` (`client`), `next` (`hybrid`), `nest` / `hono` (`server`).
 - Template-owned agent docs live under that template (`.cursor/`, `AGENTS.md`) and ship into generated apps — **do not confuse with this kit’s root skills**.
 
 ## Recipes
@@ -98,7 +98,7 @@ Categories / scopes: always use / extend `src/constants.ts` — never duplicate 
 | --- | --- |
 | Register templates/recipes in `src/registry/` | Add a template folder without registry entry |
 | Put cross-template recipe files in `shared/` | Put Next-only wiring in `shared/` |
-| Add an overlay per supported family (`vite-react`, `next`) | Assume missing overlay is OK if `overlays/` exists |
+| Add an overlay per supported family (`vite-react`, `next`, `nest`) | Assume missing overlay is OK if `overlays/` exists |
 | Keep kit root `.cursor/` for zealakit maintainers | Put kit maintainer docs only under `templates/*` |
 | Derive types from `constants.ts` | Hardcode scope/category lists in monitor or prompts |
 

@@ -14,7 +14,7 @@ It is **not** a consumer frontend app. Skills under `templates/` and `recipes/` 
 | Area | Path |
 | --- | --- |
 | CLI | `src/` |
-| Templates | `templates/` |
+| Templates | `templates/` (`vite-react`, `next`, `nest`, `hono`) |
 | Recipes | `recipes/` |
 | E2E | `scripts/test-e2e-pack.ts` |
 | Dep monitor | `monitor/` (`pnpm monitor`) |

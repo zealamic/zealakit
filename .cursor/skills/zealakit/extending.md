@@ -30,6 +30,8 @@ Use this when adding or changing templates/recipes in the **kit repo**.
 - Overlay id = `template.overlay ?? template.id` (`getTemplateOverlayId`).
 - If `recipes/<id>/overlays/` exists, the matching overlay directory is **required** at scaffold time.
 - Framework-specific providers (e.g. Next `AppRouterCacheProvider`) belong in `overlays/next`, not `shared/`.
+- Nest-only config (e.g. Biome decorator parser flags, ORM Nest modules) belongs in `overlays/nest`.
+- Exclusive `orm` recipes (`type-orm`, `mikro-orm`, `drizzle-orm`) support `server` scope; add `overlays/<be-template>/` for each BE template (`nest`, `hono`, …).
 
 ## fileTransforms
 
@@ -37,11 +39,14 @@ Use this when adding or changing templates/recipes in the **kit repo**.
 fileTransforms: {
   "vite-react": [{ file: "src/main.tsx", pattern: /.../, replacement: "..." }],
   next: [{ file: "src/app/layout.tsx", append: "..." }], // overlay id also OK
+  nest: [{ file: "src/bootstrap/main.ts", pattern: /.../, replacement: "..." }],
+  hono: [{ file: "src/bootstrap/container.ts", pattern: /.../, replacement: "..." }],
 }
 ```
 
 - Prefer surgical regex/`append`; throw if pattern does not match.
 - Do not silently no-op failed transforms.
+- Server templates `nest` / `hono` use matching overlay ids. Recipes with `overlays/` that support `server` (e.g. biome, eslint, ORMs) must include `overlays/nest/` and `overlays/hono/`.
 
 ## Verify
 

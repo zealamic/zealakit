@@ -37,6 +37,26 @@ const RECIPE_SHARED_DIR = "shared";
 const RECIPE_SCAFFOLD_DIR = "scaffold";
 const RECIPE_META_DIRS = new Set([RECIPE_OVERLAYS_DIR, RECIPE_SHARED_DIR, RECIPE_SCAFFOLD_DIR]);
 
+/** Local install/build junk that must never ship into a scaffolded app. */
+const TEMPLATE_COPY_SKIP_DIR_NAMES = new Set([
+  "node_modules",
+  "dist",
+  "coverage",
+  ".turbo",
+  ".vite",
+]);
+
+function shouldCopyTemplatePath(src: string): boolean {
+  const base = path.basename(src);
+  if (TEMPLATE_COPY_SKIP_DIR_NAMES.has(base)) {
+    return false;
+  }
+  if (base.endsWith(".tsbuildinfo")) {
+    return false;
+  }
+  return true;
+}
+
 function getRecipeFilesPath(recipeId: string): string {
   return path.join(RECIPES_DIR, recipeId);
 }
@@ -264,7 +284,7 @@ export async function scaffoldProject(
 
   fse.ensureDirSync(targetDir);
 
-  copyDirectoryContents(baseTemplatePath, targetDir);
+  copyDirectoryContents(baseTemplatePath, targetDir, shouldCopyTemplatePath);
 
   for (const recipeId of config.recipeIds) {
     copyRecipeFiles(recipeId, config.templateId, targetDir);
@@ -277,8 +297,63 @@ export async function scaffoldProject(
   }
 
   mergePackageJson(targetDir, config);
+  writePnpmAllowBuilds(targetDir, config);
 
   return targetDir;
+}
+
+/**
+ * pnpm ≥10 blocks dependency lifecycle scripts until approved.
+ * Generated apps are standalone (not the kit workspace), so ship a minimal
+ * `pnpm-workspace.yaml` with `allowBuilds` for known native tooling.
+ */
+function collectAllowBuilds(templateId: string, recipeIds: string[]): Record<string, true> {
+  const allow: Record<string, true> = {};
+  const hasStorybook = recipeIds.includes("storybook");
+
+  // Vite / Vitest / Storybook pull esbuild postinstall binaries.
+  if (
+    templateId === "vite-react" ||
+    templateId === "nest" ||
+    templateId === "hono" ||
+    hasStorybook
+  ) {
+    allow.esbuild = true;
+  }
+
+  if (templateId === "next") {
+    allow["@swc/core"] = true;
+    // Next / Turbopack file watching (also pulled by Storybook Next builder).
+    allow["@parcel/watcher"] = true;
+  }
+
+  if (hasStorybook) {
+    allow["@parcel/watcher"] = true;
+    // Storybook → @storybook/* → core-js-pure postinstall.
+    allow["core-js-pure"] = true;
+  }
+
+  if (recipeIds.includes("biome")) {
+    allow["@biomejs/biome"] = true;
+  }
+
+  return allow;
+}
+
+function writePnpmAllowBuilds(targetDir: string, config: ScaffoldConfig): void {
+  const allowBuilds = collectAllowBuilds(config.templateId, config.recipeIds);
+  const names = Object.keys(allowBuilds).sort();
+  if (names.length === 0) {
+    return;
+  }
+
+  const lines = ["allowBuilds:"];
+  for (const name of names) {
+    const key = name.includes("@") || name.includes("/") ? JSON.stringify(name) : name;
+    lines.push(`  ${key}: true`);
+  }
+
+  fs.writeFileSync(path.join(targetDir, "pnpm-workspace.yaml"), `${lines.join("\n")}\n`, "utf-8");
 }
 
 function normalizeScaffoldedBiomeConfig(targetDir: string): void {
@@ -297,8 +372,9 @@ function normalizeScaffoldedBiomeConfig(targetDir: string): void {
   fs.writeFileSync(biomeConfigPath, `${JSON.stringify(biomeConfig, null, 2)}\n`, "utf-8");
 }
 
-export function printSuccess(targetDir: string, projectName: string): void {
+export function printSuccess(targetDir: string, projectName: string, templateId?: string): void {
   const relativePath = path.relative(process.cwd(), targetDir) || projectName;
+  const startCommand = templateId === "nest" ? "npm run start:dev" : "npm run dev";
 
   console.log();
   console.log(`${pc.green("✔")} Project ${pc.cyan(projectName)} created successfully!`);
@@ -306,6 +382,6 @@ export function printSuccess(targetDir: string, projectName: string): void {
   console.log(pc.bold("Next steps:"));
   console.log(`  ${pc.cyan("cd")} ${relativePath}`);
   console.log(`  ${pc.cyan("npm install")}`);
-  console.log(`  ${pc.cyan("npm run dev")}`);
+  console.log(`  ${pc.cyan(startCommand)}`);
   console.log();
 }

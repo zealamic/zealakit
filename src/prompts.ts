@@ -167,9 +167,66 @@ async function promptClientRecipes(): Promise<string[] | null> {
   return recipeIds;
 }
 
+async function promptServerRecipes(): Promise<string[] | null> {
+  const recipeIds: string[] = [];
+  const ormRecipes = getRecipesByCategory("orm");
+
+  const ormChoice = await select<string>({
+    message: "Select ORM:",
+    options: [
+      ...ormRecipes.map((recipe) => ({
+        value: recipe.id,
+        label: recipe.name,
+        hint: recipe.id === "drizzle-orm" ? "Lightweight SQL" : undefined,
+      })),
+      { value: "none", label: "No ORM (in-memory adapters)" },
+    ],
+    initialValue: "none",
+  });
+
+  if (isCancel(ormChoice)) {
+    cancel("Cancelled.");
+    return null;
+  }
+
+  const linterChoice = await select<LinterChoice>({
+    message: "Select linter / formatter:",
+    options: [
+      {
+        value: "biome",
+        label: "Biome — Fast, all-in-one",
+        hint: "Recommended",
+      },
+      { value: "eslint", label: "ESLint — Flat Config" },
+      { value: "none", label: "No linter" },
+    ],
+    initialValue: "biome",
+  });
+
+  if (isCancel(linterChoice)) {
+    cancel("Cancelled.");
+    return null;
+  }
+
+  if (ormChoice !== "none") {
+    recipeIds.push(ormChoice);
+  }
+
+  const linterRecipe = mapLinterToRecipe(linterChoice);
+  if (linterRecipe) {
+    recipeIds.push(linterRecipe);
+  }
+
+  return recipeIds;
+}
+
 async function promptRecipesForScope(scope: Scope): Promise<string[] | null> {
   if (scope === "client" || scope === "hybrid") {
     return promptClientRecipes();
+  }
+
+  if (scope === "server") {
+    return promptServerRecipes();
   }
 
   return [];
@@ -206,11 +263,18 @@ export async function runInteractivePrompts(
     projectName = nameInput;
   }
 
+  const templateLabels: Record<string, string> = {
+    "vite-react": "Vite + React + TypeScript",
+    next: "Next.js App Router + TypeScript",
+    nest: "NestJS + TypeScript (DDD / hexagonal)",
+    hono: "Hono + TypeScript (DDD / hexagonal)",
+  };
+
   const templateId = await select({
     message: "Select a base template:",
     options: getAllTemplateIds().map((id) => ({
       value: id,
-      label: id === "vite-react" ? "Vite + React + TypeScript" : id,
+      label: templateLabels[id] ?? id,
       hint: id === "vite-react" ? "Recommended" : undefined,
     })),
     initialValue: "vite-react",
