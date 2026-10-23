@@ -11,9 +11,11 @@ README_TEMP.md
 /templates/**/pnpm-workspace.yaml
 /templates/**/bun.lockb
 /templates/**/dist
+/templates/**/.next
 /templates/**/coverage
 /templates/**/*.tsbuildinfo
 
 # Test scaffolding output
 /.sandbox/
 /.temp/
+/.pnpm-store/

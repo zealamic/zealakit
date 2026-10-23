@@ -1,0 +1,40 @@
+# The published surface is whitelisted in package.json "files".
+# This file strips source, tooling, and local artifacts from included folders.
+
+# Source & tooling
+src/
+scripts/
+monitor/
+.github/
+.cursor/
+.vscode/
+.sandbox/
+.temp/
+coverage/
+.turbo/
+**/node_modules/
+*.tgz
+*.log
+*.tsbuildinfo
+.DS_Store
+tsconfig.json
+biome.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# Recipe IDE-only helpers (not needed by scaffolded projects)
+recipes/tsconfig.json
+recipes/shims.d.ts
+
+# Template / recipe build artifacts (keep the source files)
+templates/**/dist/
+templates/**/.next/
+templates/**/coverage/
+templates/**/.turbo/
+templates/**/.vite/
+templates/**/*.tsbuildinfo
+templates/**/pnpm-lock.yaml
+templates/**/package-lock.json
+templates/**/yarn.lock
+templates/**/bun.lockb
+templates/**/pnpm-workspace.yaml

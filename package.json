@@ -3,6 +3,7 @@
   "version": "1.0.0-beta.1",
   "description": "Recipe-based scaffolding CLI for TypeScript project templates",
   "type": "module",
+  "main": "./dist/index.js",
   "bin": {
     "zealakit": "./dist/index.js"
   },
@@ -11,7 +12,13 @@
     "templates",
     "recipes",
     "!recipes/tsconfig.json",
-    "!recipes/shims.d.ts"
+    "!recipes/shims.d.ts",
+    "!templates/**/dist",
+    "!templates/**/.next",
+    "!templates/**/node_modules",
+    "!templates/**/coverage",
+    "!templates/**/*.tsbuildinfo",
+    "!templates/**/pnpm-lock.yaml"
   ],
   "scripts": {
     "build": "tsup",
@@ -21,12 +28,13 @@
     "format": "biome format --write .",
     "test:pack": "tsx scripts/test-e2e-pack.ts",
     "monitor": "tsx monitor/server.ts",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm build",
     "test:sandbox": "rm -rf .sandbox && mkdir -p .sandbox && cd .sandbox && tsx ../src/index.ts"
   },
   "engines": {
     "node": ">=18"
   },
+  "packageManager": "pnpm@12.14.0",
   "keywords": [
     "cli",
     "scaffold",
@@ -38,6 +46,17 @@
     "hono"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zealamic/zealakit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zealamic/zealakit/issues"
+  },
+  "homepage": "https://github.com/zealamic/zealakit#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@clack/prompts": "^1.8.1",
     "commander": "^15.0.0",
