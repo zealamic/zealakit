@@ -1,0 +1,22 @@
+.root {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.link {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.35rem;
+  opacity: 0.65;
+}
+
+.active {
+  opacity: 1;
+  outline: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+}
+
+.skeleton {
+  width: 5rem;
+  height: 1.75rem;
+  border-radius: 0.35rem;
+  background: color-mix(in oklab, currentColor 10%, transparent);
+}

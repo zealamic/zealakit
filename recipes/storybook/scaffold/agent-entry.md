@@ -1,0 +1,1 @@
+- **Storybook:** [.cursor/skills/storybook/SKILL.md](.cursor/skills/storybook/SKILL.md) — component stories, docs, and UI testing (`storybook` / `build-storybook`)

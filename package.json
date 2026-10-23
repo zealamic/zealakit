@@ -1,0 +1,55 @@
+{
+  "name": "zealakit",
+  "version": "1.0.0-beta.1",
+  "description": "Recipe-based scaffolding CLI for TypeScript project templates",
+  "type": "module",
+  "bin": {
+    "zealakit": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "recipes",
+    "!recipes/tsconfig.json",
+    "!recipes/shims.d.ts"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "check": "biome check .",
+    "check:write": "biome check --write .",
+    "format": "biome format --write .",
+    "test:pack": "tsx scripts/test-e2e-pack.ts",
+    "monitor": "tsx monitor/server.ts",
+    "prepublishOnly": "npm run build",
+    "test:sandbox": "rm -rf .sandbox && mkdir -p .sandbox && cd .sandbox && tsx ../src/index.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "cli",
+    "scaffold",
+    "typescript",
+    "vite",
+    "react",
+    "next",
+    "nestjs",
+    "hono"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^1.8.1",
+    "commander": "^15.0.0",
+    "fs-extra": "^11.4.1",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^26.6.4",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

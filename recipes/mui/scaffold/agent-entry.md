@@ -1,0 +1,3 @@
+- **UI kit:** [.cursor/skills/mui/SKILL.md](.cursor/skills/mui/SKILL.md) — AppRouterCacheProvider (Next) / MuiThemeProvider, theme tokens, `src/components/ui/`
+- **MUI Next.js (Next only):** [.cursor/skills/material-ui-nextjs/SKILL.md](.cursor/skills/material-ui-nextjs/SKILL.md) — SSR cache, fonts, Link, Suspense
+- **MUI theming / styling:** [.cursor/skills/material-ui-theming/SKILL.md](.cursor/skills/material-ui-theming/SKILL.md), [.cursor/skills/material-ui-styling/SKILL.md](.cursor/skills/material-ui-styling/SKILL.md)
